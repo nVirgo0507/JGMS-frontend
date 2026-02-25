@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Footer from "../components/common/Footer";
-import Header from "../components/common/Header";
+import Footer from "../../components/common/Footer";
+import Header from "../../components/common/Header";
 
 const MainLayout = () => (
   <div className="relative min-h-screen overflow-hidden bg-slate-50 text-slate-900">
