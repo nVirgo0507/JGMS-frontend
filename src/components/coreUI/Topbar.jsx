@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import "./Topbar.css";
 
-export default function Topbar() {
+export default function Topbar({ user }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -28,10 +28,11 @@ export default function Topbar() {
           onClick={() => setOpen(!open)}
         >
           <div className="user-info">
-            <strong>Tuan Khai</strong>
+            <strong>{user.name}</strong>
+            <span>{user.role}</span>
             {/* <span>System Administrator</span> */}
           </div>
-          <div className="avatar">A</div>
+          <div className="avatar">{user.avatar}</div>
         </div>
 
         {open && (
@@ -39,6 +40,9 @@ export default function Topbar() {
             <button>View Profile</button>
             <button>Settings</button>
             <hr />
+
+            {user.role === "System Adminstrator" && 
+            (<button>System Settings</button>)}
             <button className="danger">Logout</button>
           </div>
         )}

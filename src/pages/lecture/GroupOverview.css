@@ -1,0 +1,89 @@
+.group-page {
+  padding: 24px;
+}
+
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.group-search {
+  margin: 16px 0;
+  padding: 10px;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.group-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #e5e7eb;
+}
+
+.badge.on-track {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge.needs-review {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.badge.inactive {
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.btn-success {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.btn-light {
+  background: #f1f5f9;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.load-more {
+  margin-top: 20px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #e5e7eb;
+}
