@@ -1,6 +1,61 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { ROUTER_URL } from "../../consts/router.const";
+import { AuthService } from "../../services/auth.service";
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    fullName: "",
+    phone: "",
+    studentCode: "",
+  });
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setErrors({});
+
+    try {
+      const response = await AuthService.register(form);
+
+      if (response?.data) {
+        toast.success("Registration successful! Please login.");
+        navigate(ROUTER_URL.COMMON.LOGIN);
+      }
+    } catch (error) {
+      console.error("Registration failed:", error);
+
+      const errorData = error?.response?.data;
+
+      if (errorData?.errors) {
+        const fieldErrors = {};
+        Object.keys(errorData.errors).forEach((field) => {
+          const fieldName = field.charAt(0).toLowerCase() + field.slice(1);
+          fieldErrors[fieldName] =
+            errorData.errors[field][0] || errorData.errors[field];
+        });
+        setErrors(fieldErrors);
+        toast.error("Please check your registration information.");
+      } else if (errorData?.message) {
+        toast.error(errorData.message);
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
+    }
+  };
+
   return (
     <div className="mx-auto flex min-h-screen max-w-6xl items-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full overflow-hidden rounded-3xl border border-slate-200 bg-white/90 shadow-xl backdrop-blur">
@@ -39,46 +94,113 @@ const RegisterPage = () => {
                 Use your institutional email to get started.
               </p>
             </div>
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">
+                <label
+                  className="text-sm font-medium text-slate-700"
+                  htmlFor="fullName"
+                >
                   Full name
                 </label>
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                  className={`w-full rounded-xl border ${errors.fullName ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
+                  id="fullName"
+                  name="fullName"
+                  onChange={handleChange}
                   placeholder="Nguyễn Văn A"
                   type="text"
+                  value={form.fullName}
+                  required
                 />
+                {errors.fullName && (
+                  <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">
+                <label
+                  className="text-sm font-medium text-slate-700"
+                  htmlFor="email"
+                >
                   Email
                 </label>
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                  className={`w-full rounded-xl border ${errors.email ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
+                  id="email"
+                  name="email"
+                  onChange={handleChange}
                   placeholder="name@fpt.edu.vn"
                   type="email"
+                  value={form.email}
+                  required
                 />
+                {errors.email && (
+                  <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">
+                <label
+                  className="text-sm font-medium text-slate-700"
+                  htmlFor="password"
+                >
                   Password
                 </label>
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                  className={`w-full rounded-xl border ${errors.password ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
+                  id="password"
+                  name="password"
+                  onChange={handleChange}
                   placeholder="••••••••"
                   type="password"
+                  value={form.password}
+                  required
                 />
+                {errors.password && (
+                  <p className="text-xs text-red-500 mt-1">{errors.password}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">
-                  Role
+                <label
+                  className="text-sm font-medium text-slate-700"
+                  htmlFor="phone"
+                >
+                  Phone
                 </label>
-                <select className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
-                  <option>Sinh viên</option>
-                  <option>Trưởng nhóm</option>
-                  <option>Giảng viên</option>
-                </select>
+                <input
+                  className={`w-full rounded-xl border ${errors.phone ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
+                  id="phone"
+                  name="phone"
+                  onChange={handleChange}
+                  placeholder="0123456789"
+                  type="tel"
+                  value={form.phone}
+                  required
+                />
+                {errors.phone && (
+                  <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label
+                  className="text-sm font-medium text-slate-700"
+                  htmlFor="studentCode"
+                >
+                  Student Code
+                </label>
+                <input
+                  className={`w-full rounded-xl border ${errors.studentCode ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
+                  id="studentCode"
+                  name="studentCode"
+                  onChange={handleChange}
+                  placeholder="SE123456"
+                  type="text"
+                  value={form.studentCode}
+                  required
+                />
+                {errors.studentCode && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.studentCode}
+                  </p>
+                )}
               </div>
               <button
                 className="w-full rounded-xl bg-teal-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/40 focus:ring-offset-2 focus:ring-offset-white"
@@ -88,13 +210,11 @@ const RegisterPage = () => {
               </button>
             </form>
             <div className="space-y-4 text-xs text-slate-500">
-              <p>
-                By signing up, you agree to our terms and privacy policy.
-              </p>
+              <p>By signing up, you agree to our terms and privacy policy.</p>
               <p>
                 Already have an account?{" "}
                 <Link
-                  to="/login"
+                  to={ROUTER_URL.COMMON.LOGIN}
                   className="font-semibold text-teal-600 transition hover:text-teal-500"
                 >
                   Sign in

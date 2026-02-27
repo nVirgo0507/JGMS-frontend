@@ -1,55 +1,43 @@
-import { useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LOCAL_STORAGE, ROLE } from "../../consts/const";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import { ROUTER_URL } from "../../consts/router.const";
-import { getDashboardPathByRole } from "../../utils/auth";
-
-const roles = [
-  { label: "Admin", value: ROLE.ADMIN },
-  { label: "Lecturer", value: ROLE.LECTURER },
-  { label: "Team Leader", value: ROLE.TEAM_LEADER },
-  { label: "Team Member", value: ROLE.TEAM_MEMBER },
-];
 
 const LoginPage = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { login } = useAuth();
   const [form, setForm] = useState({
     email: "",
     password: "",
-    role: ROLE.TEAM_MEMBER,
   });
-  const fromPath = useMemo(
-    () => location.state?.from || null,
-    [location.state?.from],
-  );
+  const [errors, setErrors] = useState({});
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const payload = {
-      email: form.email || "demo@jgms.io",
-      role: form.role,
-      name: "Demo User",
-    };
-    localStorage.setItem(LOCAL_STORAGE.AUTH_USER, JSON.stringify(payload));
-    navigate(
-      fromPath || getDashboardPathByRole(form.role) || ROUTER_URL.COMMON.LOGIN,
-    );
-  };
+    setErrors({});
 
-  const handleDemo = (role) => {
-    const payload = {
-      email: "demo@jgms.io",
-      role,
-      name: "Demo User",
-    };
-    localStorage.setItem(LOCAL_STORAGE.AUTH_USER, JSON.stringify(payload));
-    navigate(getDashboardPathByRole(role));
+    const result = await login({
+      email: form.email,
+      password: form.password,
+    });
+
+    if (!result.success && result.errors) {
+      // Xử lý validation errors
+      const fieldErrors = {};
+      Object.keys(result.errors).forEach((field) => {
+        const fieldName = field.charAt(0).toLowerCase() + field.slice(1);
+        fieldErrors[fieldName] =
+          result.errors[field][0] || result.errors[field];
+      });
+      setErrors(fieldErrors);
+    }
   };
 
   return (
@@ -68,24 +56,6 @@ const LoginPage = () => {
                 Log in with your institutional account to manage deliverables
                 and stay aligned with milestones.
               </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-white/80 p-6 text-sm text-slate-700">
-              <p className="font-semibold text-slate-900">Quick access</p>
-              <p className="mt-2 text-slate-600">
-                Choose a role below to preview the dashboards without an API.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {roles.map((item) => (
-                  <button
-                    key={item.value}
-                    className="rounded-xl border border-teal-300 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-teal-700 transition hover:bg-teal-50"
-                    onClick={() => handleDemo(item.value)}
-                    type="button"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
           <div className="flex flex-col gap-8 p-8 sm:p-12">
@@ -109,7 +79,7 @@ const LoginPage = () => {
                   Email
                 </label>
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                  className={`w-full rounded-xl border ${errors.email ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
                   id="email"
                   name="email"
                   onChange={handleChange}
@@ -117,6 +87,9 @@ const LoginPage = () => {
                   type="email"
                   value={form.email}
                 />
+                {errors.email && (
+                  <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <label
@@ -126,7 +99,7 @@ const LoginPage = () => {
                   Password
                 </label>
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                  className={`w-full rounded-xl border ${errors.password ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
                   id="password"
                   name="password"
                   onChange={handleChange}
@@ -134,27 +107,9 @@ const LoginPage = () => {
                   type="password"
                   value={form.password}
                 />
-              </div>
-              <div className="space-y-2">
-                <label
-                  className="text-sm font-medium text-slate-700"
-                  htmlFor="role"
-                >
-                  Role
-                </label>
-                <select
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
-                  id="role"
-                  name="role"
-                  onChange={handleChange}
-                  value={form.role}
-                >
-                  {roles.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
+                {errors.password && (
+                  <p className="text-xs text-red-500 mt-1">{errors.password}</p>
+                )}
               </div>
               <div className="flex items-center justify-between text-sm text-slate-600">
                 <label className="flex items-center gap-2">

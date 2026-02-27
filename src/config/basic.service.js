@@ -61,12 +61,12 @@ axiosInstance.interceptors.response.use(
     }
 
     if (response?.status === 403 && !getAccessToken()) {
-
       return Promise.reject(err);
     }
 
-    const messages = response?.data?.message || err.message;
-    toast.error(messages);
+    // Không toast ở đây nữa, để component xử lý chi tiết hơn
+    // const messages = response?.data?.message || err.message;
+    // toast.error(messages);
     return Promise.reject(err);
   }
 );
