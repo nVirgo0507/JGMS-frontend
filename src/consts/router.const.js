@@ -10,10 +10,4 @@ export const ROUTER_URL = {
   LECTURER: {
     DASHBOARD: "/lecturer",
   },
-  TEAM_LEADER: {
-    DASHBOARD: "/leader",
-  },
-  TEAM_MEMBER: {
-    DASHBOARD: "/member",
-  },
 };

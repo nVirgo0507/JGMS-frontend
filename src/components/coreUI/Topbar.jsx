@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 import "./Topbar.css";
 
 export default function Topbar() {
+  const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -15,6 +17,14 @@ export default function Topbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleLogout = () => {
+    setOpen(false);
+    logout();
+  };
+
+  const avatarLetter = user?.email?.charAt(0).toUpperCase() || "U";
+  const displayName = user?.email?.split("@")[0] || "User";
+
   return (
     <div className="topbar">
       <input
@@ -23,15 +33,11 @@ export default function Topbar() {
       />
 
       <div className="topbar-user" ref={menuRef}>
-        <div
-          className="user-trigger"
-          onClick={() => setOpen(!open)}
-        >
+        <div className="user-trigger" onClick={() => setOpen(!open)}>
           <div className="user-info">
-            <strong>Tuan Khai</strong>
-            {/* <span>System Administrator</span> */}
+            <strong>{displayName}</strong>
           </div>
-          <div className="avatar">A</div>
+          <div className="avatar">{avatarLetter}</div>
         </div>
 
         {open && (
@@ -39,7 +45,9 @@ export default function Topbar() {
             <button>View Profile</button>
             <button>Settings</button>
             <hr />
-            <button className="danger">Logout</button>
+            <button className="danger" onClick={handleLogout}>
+              Logout
+            </button>
           </div>
         )}
       </div>

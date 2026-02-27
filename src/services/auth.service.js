@@ -2,10 +2,19 @@ import { BaseService } from "../config/basic.service";
 import { API } from "../consts/path.api";
 
 export const AuthService = {
-  login({ idToken } = {}) {
+  login({ email, password } = {}) {
     return BaseService.post({
       url: API.AUTH.LOGIN,
-      payload: { IdToken: idToken },
+      payload: { email, password },
       isLoading: true,
     });
-  }};
+  },
+  
+  register({ email, password, fullName, phone, studentCode } = {}) {
+    return BaseService.post({
+      url: API.AUTH.REGISTER,
+      payload: { email, password, fullName, phone, studentCode },
+      isLoading: true,
+    });
+  }
+};

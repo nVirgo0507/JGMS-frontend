@@ -1,14 +1,14 @@
 export const API = {
   COMMON: {
-    PUBLIC: "api/client",
+    PUBLIC: "/api/client",
   },
   AUTH: {
-    LOGIN: "/auth/login",
-    LOGIN_EMAIL: "/auth/login/email",
-    REGISTER: "/auth/register",
-    ME: "/auth/me",
+    LOGIN: "/api/auth/login",
+    LOGIN_EMAIL: "/api/auth/login/email",
+    REGISTER: "/api/auth/register",
+    ME: "/api/auth/me",
   },
   ADMIN: {
-    USERS: "/admin",
+    USERS: "/api/admin",
   }
 };
