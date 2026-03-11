@@ -17,7 +17,7 @@ export default function ManageGroups() {
     groupName: "",
     lecturerId: "",
     leaderId: "",
-    memberIds: []
+    status: "active"
 });
 
   useEffect(() => {
@@ -40,10 +40,11 @@ export default function ManageGroups() {
 
   const resetForm = () => {
     setFormData({
+      groupCode: "",
       groupName: "",
-      projectTitle: "",
-      className: "",
       lecturerId: "",
+      leaderId: "",
+      status: "active",
     });
     setEditingGroup(null);
   };
@@ -57,10 +58,11 @@ export default function ManageGroups() {
     setEditingGroup(group);
 
     setFormData({
+      groupCode: group.groupCode || "",
       groupName: group.groupName || "",
-      projectTitle: group.projectTitle || "",
-      className: group.className || "",
       lecturerId: group.lecturerId || "",
+      leaderId: group.leaderId || "",
+      status: group.status || "active"
     });
 
     setOpen(true);
@@ -84,10 +86,11 @@ export default function ManageGroups() {
     try {
 
       const payload = {
-        ...formData,
-        lecturerId: Number(formData.lecturerId),
-        leaderId: Number(formData.leaderId),
-        memberIds: []
+          groupCode: formData.groupCode,
+          groupName: formData.groupName,
+          lecturerId: String(formData.lecturerId),
+          leaderId: String(formData.leaderId),
+          status: formData.status
       };
 
       if (editingGroup) {
@@ -100,6 +103,7 @@ export default function ManageGroups() {
         await AdminGroupService.createGroup(payload);
         toast.success("Group created successfully!");
       }
+      
 
       setOpen(false);
       resetForm();
@@ -145,6 +149,7 @@ export default function ManageGroups() {
             <tr>
               <th>GROUP ID</th>
               <th>GROUP NAME</th>
+              <th>LEADER</th>
               <th>LECTURER</th>
               <th>PROJECT</th>
               <th>ACTION</th>
@@ -161,6 +166,8 @@ export default function ManageGroups() {
                   <p>{group.memberCount} Members</p>
                 </td>
 
+                <td>{group.leaderName || "No leader"}</td>
+
                 <td>{group.lecturerName}</td>
 
                 <td>
@@ -170,8 +177,21 @@ export default function ManageGroups() {
                 </td>
 
                 <td>
-                  <button>Edit</button>
-                  <button>Delete</button>
+                  <div className="action-buttons">
+                  <button
+                    className="btn-edit"
+                    onClick={() => handleOpenEdit(group)}
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDelete(group.groupCode)}
+                  >
+                    Delete
+                  </button>
+                </div>
                 </td>
               </tr>
             ))}
@@ -217,6 +237,16 @@ export default function ManageGroups() {
             value={formData.leaderId}
             onChange={handleChange}
           />
+
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+          >
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+
           <button
             className="btn-primary full"
             onClick={handleSubmit}
