@@ -13,30 +13,44 @@ export default function ManageGroups() {
   const [page, setPage] = useState(1);
   const [editingGroup, setEditingGroup] = useState(null);
   const [expandedGroup, setExpandedGroup] = useState(null);
-  const [groupMembers, setGroupMembers] = useState({})
+  const [groupMembers, setGroupMembers] = useState({});
   const [lecturers, setLecturers] = useState([]);
-  const [students, setStudents] = useState([]);
+  const [availableStudents, setAvailableStudents] = useState([]);
+  const [newMemberIds, setNewMemberIds] = useState([]);
 
-  useEffect(() => {
-    fetchGroups();
-    fetchLecturers();
-    fetchStudents();
-  }, []);
-
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     groupCode: "",
     groupName: "",
     lecturerId: "",
     leaderId: "",
     memberIds: [],
-    status: "active"
-});
+    status: "active",
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
+
+  useEffect(() => {
+    fetchGroups();
+    fetchLecturers();
+    fetchAvailableStudents();
+  }, []);
+
+  useEffect(() => {
+    if (editingGroup) {
+      handleExpand(editingGroup.groupCode);
+    }
+  }, [editingGroup]);
+
+  const resetForm = () => {
+    setFormData(initialFormState);
+    setNewMemberIds([]);
+    setEditingGroup(null);
+  };
 
   const fetchGroups = async () => {
     try {
       setLoading(true);
       const res = await AdminGroupService.getAllGroups();
-      console.log("API RESPONSE:", res.data);
       setGroups((res.data || []).filter(g => g.status === "active"));
     } catch (err) {
       console.error(err);
@@ -55,25 +69,13 @@ export default function ManageGroups() {
     }
   };
 
-  const fetchStudents = async () => {
+  const fetchAvailableStudents = async () => {
     try {
       const res = await AdminGroupService.getStudents();
-      setStudents(res.data || []);
+      setAvailableStudents(res.data || []);
     } catch (err) {
       console.error(err);
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      groupCode: "",
-      groupName: "",
-      lecturerId: "",
-      leaderId: "",
-      memberIds: [],
-      status: "active",
-    });
-    setEditingGroup(null);
   };
 
   const handleOpenCreate = () => {
@@ -81,18 +83,31 @@ export default function ManageGroups() {
     setOpen(true);
   };
 
-  const handleOpenEdit = (group) => {
-    setEditingGroup(group);
+  const handleOpenEdit = async (group) => {
+    try{
+      setEditingGroup(group);
+      const res = await AdminGroupService.getGroupDetail(group.groupCode);
 
-    setFormData({
-      groupCode: group.groupCode || "",
-      groupName: group.groupName || "",
-      lecturerId: group.lecturerId || "",
-      leaderId: group.leaderId || "",
-      status: group.status || "active"
-    });
+      setGroupMembers(prev => ({
+        ...prev,
+        [group.groupCode]: res.data.members
+      }));
 
-    setOpen(true);
+      setFormData({
+        groupCode: group.groupCode || "",
+        groupName: group.groupName || "",
+        lecturerId: group.lecturerId || "",
+        leaderId: group.leaderId || "",
+        memberIds: [],
+        status: group.status || "active",
+      });
+
+      setNewMemberIds([]);
+      setOpen(true);
+    }catch(err) {
+      console.error(err);
+      toast.error("Failed to load group detail");
+    }
   };
 
   const handleChange = (e) => {
@@ -102,107 +117,105 @@ export default function ManageGroups() {
     });
   };
 
+  const handleLeaderChange = (e) => {
+    const leaderId = e.target.value;
+
+    let members = [...formData.memberIds];
+
+    if (!members.includes(leaderId)) {
+      members.push(leaderId);
+    }
+
+    setFormData({
+      ...formData,
+      leaderId,
+      memberIds: members,
+    });
+  };
+
   const handleSubmit = async () => {
-  if (!formData.groupCode || !formData.groupName) {
-    toast.error("Please fill all required fields");
-    return;
-  }
+    if (!formData.groupCode || !formData.groupName) {
+      toast.error("Please fill all required fields");
+      return;
+    }
 
-  if (!formData.leaderId) {
-    toast.error("Please select a leader");
-    return;
-  }
+    if (!formData.leaderId) {
+      toast.error("Please select a leader");
+      return;
+    }
 
-  if (!formData.lecturerId) {
-    toast.error("Please select a lecturer");
-    return;
-  }
+    if (!formData.lecturerId) {
+      toast.error("Please select a lecturer");
+      return;
+    }
 
-  if (!editingGroup && formData.memberIds.length === 0) {
-    toast.error("Please select at least 1 member");
-    return;
-  }
+    if (!editingGroup && formData.memberIds.length === 0) {
+      toast.error("Please select at least 1 member");
+      return;
+    }
 
-  try {
-    if (editingGroup) {
-      await AdminGroupService.updateGroup(
-      editingGroup.groupCode,
-      {
-        groupCode: formData.groupCode,
-        groupName: formData.groupName,
-        lecturerId: String(formData.lecturerId),
-        leaderId: String(formData.leaderId),
-        status: formData.status
-      }
-  );
-      if (formData.newMemberIds?.length > 0) {
-        await AdminGroupService.addMembers(
+    try {
+      if (editingGroup) {
+        await AdminGroupService.updateGroup(
           editingGroup.groupCode,
           {
-            studentIdentifiers: formData.newMemberIds.map(Number)
-          }
-        );
-  }
-      toast.success("Group updated!");
-    } else {
-      const existing = groups.find(
-        g => g.groupCode === formData.groupCode
-      );
-
-      let members = formData.memberIds.map(Number);
-
-      if (!members.includes(Number(formData.leaderId))) {
-        members.push(Number(formData.leaderId));
-      }
-      const uniqueMembers = [...new Set(members)];
-
-      await AdminGroupService.addMembers(existing.groupCode, {
-        studentIdentifiers: uniqueMembers
-      });
-
-      if (existing) {
-        if (existing.status === "inactive") {
-          await AdminGroupService.updateGroup(existing.groupCode, {
             groupCode: formData.groupCode,
             groupName: formData.groupName,
             lecturerId: String(formData.lecturerId),
             leaderId: String(formData.leaderId),
-            status: "active"
-          });
+            status: formData.status
+          }
+        );
 
-          await AdminGroupService.addMembers(existing.groupCode, {
-            studentIdentifiers: members.map(Number)
-          });
+        if (newMemberIds.length > 0) {
+          await AdminGroupService.addMembers(
+            editingGroup.groupCode,
+            {
+              studentIdentifiers: newMemberIds.map(Number)
+            }
+          );
+        }
 
-          toast.success("Group restored with members!");
-        } else {
+        toast.success("Group updated successfully!");
+      } else {
+        const existing = groups.find(
+          g => g.groupCode === formData.groupCode
+        );
+
+        if (existing) {
           toast.error("Group code already exists!");
           return;
         }
-      } else {
-        const payload = {
+
+        let members = formData.memberIds.map(Number);
+
+        if (!members.includes(Number(formData.leaderId))) {
+          members.push(Number(formData.leaderId));
+        }
+
+        const uniqueMembers = [...new Set(members)];
+
+        await AdminGroupService.createGroup({
           groupCode: formData.groupCode,
           groupName: formData.groupName,
           lecturerId: String(formData.lecturerId),
           leaderId: String(formData.leaderId),
-          memberIds: members.map(String)
-        };
-
-        await AdminGroupService.createGroup(payload);
+          memberIds: uniqueMembers.map(String)
+        });
 
         toast.success("Group created successfully!");
       }
+
+      setOpen(false);
+      resetForm();
+      fetchGroups();
+      fetchAvailableStudents();
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Operation failed");
     }
-
-    setOpen(false);
-    resetForm();
-    fetchGroups();
-
-  } catch (err) {
-    console.error(err);
-    toast.error("Operation failed");
-  }
-}
+  };
 
   const handleDelete = async (groupCode) => {
     if (!window.confirm("Delete this group?")) return;
@@ -211,6 +224,7 @@ export default function ManageGroups() {
       await AdminGroupService.deleteGroup(groupCode);
       toast.success("Group deleted");
       fetchGroups();
+      fetchAvailableStudents();
     } catch (err) {
       console.error(err);
       toast.error("Delete failed");
@@ -218,7 +232,7 @@ export default function ManageGroups() {
   };
 
   const handleExpand = async (groupCode) => {
-    if(expandedGroup === groupCode){
+    if (expandedGroup === groupCode) {
       setExpandedGroup(null);
       return;
     }
@@ -233,25 +247,9 @@ export default function ManageGroups() {
 
       setExpandedGroup(groupCode);
     } catch (err) {
-      console.error("Error loading group detail",err);
+      console.error(err);
     }
-  }
-
-  const handleLeaderChange = (e) => {
-  const leaderId = e.target.value;
-
-  let members = [...formData.memberIds];
-
-  if (!members.includes(leaderId)) {
-    members.push(leaderId);
-  }
-
-  setFormData({
-    ...formData,
-    leaderId,
-    memberIds: members
-  });
-};
+  };
 
   return (
     <>
@@ -283,100 +281,104 @@ export default function ManageGroups() {
 
           <tbody>
             {groups.map(group => (
-            <React.Fragment key={group.groupCode}>
-              <tr key={group.groupCode}
-              onClick={() => handleExpand(group.groupCode)}
-              style={{cursor : "pointer"}}>
-                <td>{group.groupCode}</td>
+              <React.Fragment key={group.groupCode}>
+                <tr
+                  onClick={() => handleExpand(group.groupCode)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <td>{group.groupCode}</td>
 
-                <td>
-                  <strong>{group.groupName}</strong>
-                  <p>{group.memberCount} Members</p>
-                </td>
+                  <td>
+                    <strong>{group.groupName}</strong>
+                    <p>{group.memberCount} Members</p>
+                  </td>
 
-                <td>{group.leaderName || "No leader"}</td>
+                  <td>{group.leaderName || "No leader"}</td>
 
-                <td>{group.lecturerName}</td>
+                  <td>{group.lecturerName}</td>
 
-                <td>
-                  <span className="badge">
-                    {group.status}
-                  </span>
-                </td>
+                  <td>
+                    <span className="badge">
+                      {group.status}
+                    </span>
+                  </td>
 
-                <td>
-                  <div className="action-buttons">
-                  <button
-                    className="btn-edit"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenEdit(group);
-                    }}
-                  >
-                    Edit
-                  </button>
+                  <td>
+                    <div className="action-buttons">
+                      <button
+                        className="btn-edit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEdit(group);
+                        }}
+                      >
+                        Edit
+                      </button>
 
-                  <button
-                    className="btn-delete"
-                    onClick={(e) =>{
-                      e.stopPropagation()
-                      handleDelete(group.groupCode)} }
-                  >
-                    Delete
-                  </button>
-                </div>
-                </td>
-              </tr>
-
-              {expandedGroup === group.groupCode && (
-                <tr>
-                  <td colSpan="6">
-                    <table className="member-table">
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Email</th>
-                          <th>Leader</th>
-                          <th>Joined At</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {groupMembers[group.groupCode]?.map((m) => (
-                          <tr key = {m.memberId}>
-                            <td>{m.userName}</td>
-                            <td>{m.email}</td>
-                            <td>{m.isLeader ? "Leader" : "-"}</td>
-                            <td>{m.joinedAt}</td>
-                            <td>
-                              {!m.isLeader && (
-                                <button
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-
-                                    if (!window.confirm("Remove this member?")) return;
-
-                                    await AdminGroupService.removeMember(
-                                      group.groupCode,
-                                      m.memberId
-                                    );
-
-                                    toast.success("Member removed!");
-                                    handleExpand(group.groupCode);
-                                  }}
-                                >
-                                  Remove
-                                </button>
-                            )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                      <button
+                        className="btn-delete"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(group.groupCode);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
-              )}
+
+                {expandedGroup === group.groupCode && (
+                  <tr>
+                    <td colSpan="6">
+                      <table className="member-table">
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Leader</th>
+                            <th>Joined At</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {groupMembers[group.groupCode]?.map((m) => (
+                            <tr key={m.memberId}>
+                              <td>{m.userName}</td>
+                              <td>{m.email}</td>
+                              <td>{m.isLeader ? "Leader" : "-"}</td>
+                              <td>{m.joinedAt}</td>
+                              <td>
+                                {!m.isLeader && (
+                                  <button
+                                    className="btn-remove"
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+
+                                      if (!window.confirm("Remove this member?")) return;
+
+                                      await AdminGroupService.removeMember(
+                                        group.groupCode,
+                                        m.userId
+                                      );
+
+                                      toast.success("Member removed!");
+                                      handleExpand(group.groupCode);
+                                      fetchAvailableStudents();
+                                    }}
+                                  >
+                                    Remove
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                )}
               </React.Fragment>
             ))}
           </tbody>
@@ -384,13 +386,12 @@ export default function ManageGroups() {
       )}
 
       <Modal
-        title={
-          editingGroup
-            ? "Edit Group"
-            : "Create New Group"
-        }
+        title={editingGroup ? "Edit Group" : "Create New Group"}
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          setOpen(false);
+          resetForm();
+        }}
       >
         <div className="modal-form">
 
@@ -427,7 +428,10 @@ export default function ManageGroups() {
             onChange={handleLeaderChange}
           >
             <option value="">Select Leader</option>
-            {students.map(s => (
+            {(editingGroup
+              ? groupMembers[editingGroup.groupCode] || []
+              : availableStudents
+            ).map(s => (
               <option key={s.userId} value={s.userId}>
                 {s.fullName}
               </option>
@@ -443,10 +447,35 @@ export default function ManageGroups() {
                   e.target.selectedOptions,
                   option => option.value
                 );
-                setFormData({ ...formData, memberIds: values });
+
+                setFormData({
+                  ...formData,
+                  memberIds: values,
+                });
               }}
             >
-              {students.map(s => (
+              {availableStudents.map(s => (
+                <option key={s.userId} value={s.userId}>
+                  {s.fullName}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {editingGroup && (
+            <select
+              multiple
+              value={newMemberIds}
+              onChange={(e) => {
+                const values = Array.from(
+                  e.target.selectedOptions,
+                  option => option.value
+                );
+
+                setNewMemberIds(values);
+              }}
+            >
+              {availableStudents.map(s => (
                 <option key={s.userId} value={s.userId}>
                   {s.fullName}
                 </option>
@@ -480,4 +509,3 @@ export default function ManageGroups() {
     </>
   );
 }
-
