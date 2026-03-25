@@ -1,25 +1,50 @@
-import { Card, Descriptions, Typography, Avatar, Divider } from "antd";
+import { useEffect, useState, useCallback } from "react";
+import { Card, Descriptions, Typography, Avatar, Divider, Tag, Spin } from "antd";
 import { UserOutlined, MailOutlined, PhoneOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
+import { AdminUserService } from "../../services/admin/adminUser.service";
+import { toast } from "react-toastify";
 
 const { Title, Text } = Typography;
 
-export default function LecturerProfile() {
+export default function AdminProfile() {
   const { user } = useAuth();
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!user) {
+  const fetchProfile = useCallback(async () => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      const subId = user.sub || JSON.parse(atob(user.accessToken.split('.')[1])).sub;
+      const res = await AdminUserService.getUser(subId);
+      setProfile(res.data);
+    } catch (err) {
+      toast.error("Failed to load profile details");
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  if (!user || loading) {
     return (
-      <div className="p-8 flex items-center justify-center">
-        <Text type="secondary">Loading profile information...</Text>
+      <div className="p-8 flex items-center justify-center h-64">
+        <Spin size="large" tip="Loading profile information..." />
       </div>
     );
   }
+
+  const displayData = profile || user;
 
   return (
     <div className="p-4 md:p-6 xl:p-8">
       <div className="mb-6">
         <Title level={3}>My Profile</Title>
-        <Text type="secondary">Manage your account details and preferences.</Text>
+        <Text type="secondary">Manage your administrator account details.</Text>
       </div>
 
       <div className="max-w-4xl">
@@ -28,18 +53,18 @@ export default function LecturerProfile() {
             <Avatar 
               size={84} 
               icon={<UserOutlined />} 
-              style={{ backgroundColor: '#0f766e' }}
+              style={{ backgroundColor: '#10b981' }} // Emerald 500
             >
-              {user.fullName ? user.fullName.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase()}
+              {displayData.fullName ? displayData.fullName.charAt(0).toUpperCase() : displayData.email?.charAt(0).toUpperCase()}
             </Avatar>
             
             <div>
               <Title level={4} style={{ marginTop: 0, marginBottom: 4 }}>
-                {user.fullName || "Lecturer"}
+                {displayData.fullName || "Administrator"}
               </Title>
               <Text className="text-gray-500 flex items-center gap-2">
                 <SafetyCertificateOutlined className="text-emerald-500" />
-                {user.role || "LECTURER"}
+                ADMINISTRATOR
               </Text>
             </div>
           </div>
@@ -53,21 +78,21 @@ export default function LecturerProfile() {
             size="large"
           >
             <Descriptions.Item label={<span className="flex items-center gap-2"><MailOutlined /> Email Address</span>}>
-              <Text className="font-medium text-gray-900">{user.email || "Not Provided"}</Text>
+              <Text className="font-medium text-gray-900">{displayData.email || "Not Provided"}</Text>
             </Descriptions.Item>
             
             <Descriptions.Item label={<span className="flex items-center gap-2"><PhoneOutlined /> Phone Number</span>}>
-              <Text className="font-medium text-gray-900">{user.phone || "Not Provided"}</Text>
+              <Text className="font-medium text-gray-900">{displayData.phone || "Not Provided"}</Text>
             </Descriptions.Item>
             
             <Descriptions.Item label={<span className="flex items-center gap-2"><UserOutlined /> Status</span>}>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                ACTIVE
-              </span>
+              {displayData.status === "inactive" ? (
+                <Tag color="default">Inactive</Tag>
+              ) : (
+                <Tag color="green">Active</Tag>
+              )}
             </Descriptions.Item>
           </Descriptions>
-
-          {/* Additional details could be added here if the API provides more lecturer-specific fields */}
         </Card>
       </div>
     </div>

@@ -4,8 +4,13 @@ import { ROLE } from "../consts/const";
 import AdminLayout from "../layouts/AdminLayout";
 import MainLayout from "../layouts/MainLayout";
 import Dashboard from "../pages/Admin/Dashboard";
+import AdminProfile from "../pages/Admin/Profile";
 import ManageGroups from "../pages/Admin/ManageGroups";
 import ManageLectures from "../pages/Admin/ManageLecture";
+import ManageUsers from "../pages/Admin/ManageUsers";
+import ManageProjects from "../pages/Admin/ManageProjects";
+import AdminIntegrations from "../pages/Admin/Integrations";
+import GroupIntegrations from "../pages/Admin/GroupIntegrations";
 import StudentDashboard from "../pages/student/Dashboard";
 import StudentMyGroup from "../pages/student/MyGroup";
 import StudentProfile from "../pages/student/Profile";
@@ -15,6 +20,7 @@ import StudentProgressReports from "../pages/student/ProgressReports";
 import StudentDocuments from "../pages/student/Documents";
 import ProgressReports from "../pages/lecturer/ProgressReports";
 import LecturerDashboard from "../pages/lecturer/Dashboard";
+import GroupDetails from "../pages/lecturer/GroupDetails";
 import GithubReport from "../pages/lecturer/GithubReport";
 import LecturerProfile from "../pages/lecturer/Profile"; 
 import LoginPage from "../pages/auth/Login";
@@ -40,8 +46,13 @@ const AppRoutes = () =>
           element: <AdminLayout />,
           children: [
             { index: true, element: <Dashboard /> },
+            { path: "profile", element: <AdminProfile /> },
             { path: "groups", element: <ManageGroups /> },
             { path: "lectures", element: <ManageLectures /> },
+            { path: "users", element: <ManageUsers /> },
+            { path: "projects", element: <ManageProjects /> },
+            { path: "integrations", element: <AdminIntegrations /> },
+            { path: "group-integrations", element: <GroupIntegrations /> },
           ],
         },
       ],
@@ -54,6 +65,7 @@ const AppRoutes = () =>
           element: <AdminLayout />,
           children: [
             { index: true, element: <LecturerDashboard /> },
+            { path: "groups/:groupCode", element: <GroupDetails /> },
             { path: "profile", element: <LecturerProfile /> },
             { path: "reports", element: <ProgressReports /> },
             { path: "github", element: <GithubReport /> }

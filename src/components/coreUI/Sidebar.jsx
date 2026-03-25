@@ -1,4 +1,5 @@
 import {
+  ApiOutlined,
   AppstoreOutlined,
   CheckSquareOutlined,
   DashboardOutlined,
@@ -7,6 +8,7 @@ import {
   GithubOutlined,
   SolutionOutlined,
   TeamOutlined,
+  UserAddOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { Link, NavLink } from "react-router-dom";
@@ -25,23 +27,28 @@ export default function Sidebar({ isCollapsed = false }) {
     let ignore = false;
 
     const loadStudentLeaderState = async () => {
-      if (userRole !== "student" || !user?.email) {
+      if (userRole !== "student") {
         setIsStudentLeader(false);
         return;
       }
 
       try {
         const response = await StudentService.getMyGroup({ isLoading: false });
-        const members = response?.data?.members;
-        const currentEmail = user.email.toLowerCase();
+        const data = response?.data;
 
         if (ignore) return;
 
-        const nextIsLeader = Array.isArray(members)
-          ? members.some(
-              (member) =>
-                member?.isLeader &&
-                member?.email?.toLowerCase() === currentEmail,
+        // Primary: use the isLeader flag returned for this user
+        if (typeof data?.isLeader === "boolean") {
+          setIsStudentLeader(data.isLeader);
+          return;
+        }
+
+        // Fallback: check members array by matching user email
+        const currentEmail = user?.email?.toLowerCase();
+        const nextIsLeader = currentEmail && Array.isArray(data?.members)
+          ? data.members.some(
+              (m) => m?.isLeader && m?.email?.toLowerCase() === currentEmail,
             )
           : false;
 
@@ -120,14 +127,39 @@ export default function Sidebar({ isCollapsed = false }) {
             end: true,
           },
           {
+            to: ROUTER_URL.ADMIN.PROFILE,
+            label: "Profile",
+            icon: <UserOutlined />,
+          },
+          {
             to: ROUTER_URL.ADMIN.MANAGE_GROUP,
             label: "Manage Groups",
             icon: <TeamOutlined />,
           },
           {
             to: ROUTER_URL.ADMIN.MANAGE_LECTURE,
-            label: "Manage Lectures",
+            label: "Manage Lecturers",
             icon: <SolutionOutlined />,
+          },
+          {
+            to: ROUTER_URL.ADMIN.MANAGE_USERS,
+            label: "Manage Users",
+            icon: <UserAddOutlined />,
+          },
+          {
+            to: ROUTER_URL.ADMIN.MANAGE_PROJECTS,
+            label: "Projects",
+            icon: <FolderOpenOutlined />,
+          },
+          {
+            to: ROUTER_URL.ADMIN.INTEGRATIONS,
+            label: "User Integrations",
+            icon: <ApiOutlined />,
+          },
+          {
+            to: ROUTER_URL.ADMIN.GROUP_INTEGRATIONS,
+            label: "Group Integrations",
+            icon: <GithubOutlined />,
           },
         ];
       case "lecturer":

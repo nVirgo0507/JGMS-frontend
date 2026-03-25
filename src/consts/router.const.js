@@ -5,9 +5,14 @@ export const ROUTER_URL = {
     REGISTER: "/register",
   },
   ADMIN: {
-    DASHBOARD: "/admin",
-    MANAGE_GROUP: "/admin/groups",
+    DASHBOARD:      "/admin",
+    PROFILE:        "/admin/profile",
+    MANAGE_GROUP:   "/admin/groups",
     MANAGE_LECTURE: "/admin/lectures",
+    MANAGE_USERS:       "/admin/users",
+    MANAGE_PROJECTS:    "/admin/projects",
+    INTEGRATIONS:       "/admin/integrations",
+    GROUP_INTEGRATIONS: "/admin/group-integrations",
   },
   LECTURER: {
     DASHBOARD: "/lecturer",

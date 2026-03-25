@@ -1,511 +1,428 @@
-import "./Table.css";
-import Pagination from "../../components/Pagination";
-import { useState, useEffect } from "react";
-import Modal from "../../components/coreUI/Modal";
-import { AdminGroupService } from "../../services/admin/adminGroup.service";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Button, Card, Col, Form, Input, Popconfirm, Row, Select, Table,
+  Tag, Tooltip, Typography,
+} from "antd";
+import {
+  DeleteOutlined, EditOutlined, PlusOutlined, TeamOutlined, UserAddOutlined,
+} from "@ant-design/icons";
 import { toast } from "react-toastify";
-import React from "react";
+import { AdminGroupService } from "../../services/admin/adminGroup.service";
+
+const { Title, Text } = Typography;
+
+const STATUS_COLOR = { active: "green", inactive: "default" };
+
+/* ─── Expanded member sub-table ─── */
+const MemberColumns = (groupCode, onRemoved) => [
+  { title: "Name",      dataIndex: "fullName", key: "fullName", render: (_, r) => r.fullName || r.userName || "—" },
+  { title: "Email",     dataIndex: "email",    key: "email" },
+  {
+    title: "Role", dataIndex: "isLeader", key: "role", width: 80,
+    render: v => v ? <Tag color="gold">Leader</Tag> : <Tag>Member</Tag>,
+  },
+  { title: "Joined",    dataIndex: "joinedAt", key: "joinedAt", render: v => v ? new Date(v).toLocaleDateString() : "—" },
+  {
+    title: "", key: "remove", width: 80,
+    render: (_, row) => !row.isLeader && (
+      <Popconfirm
+        title="Remove this member?"
+        onConfirm={async () => {
+          try {
+            await AdminGroupService.removeMember(groupCode, row.userId);
+            toast.success("Member removed");
+            onRemoved(groupCode);
+          } catch (err) {
+            toast.error(err?.response?.data?.message || "Remove failed");
+          }
+        }}
+        okButtonProps={{ danger: true }}
+      >
+        <Button size="small" danger>Remove</Button>
+      </Popconfirm>
+    ),
+  },
+];
 
 export default function ManageGroups() {
-  const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [page, setPage] = useState(1);
-  const [editingGroup, setEditingGroup] = useState(null);
-  const [expandedGroup, setExpandedGroup] = useState(null);
-  const [groupMembers, setGroupMembers] = useState({});
-  const [lecturers, setLecturers] = useState([]);
+  const [groups, setGroups]               = useState([]);
+  const [loading, setLoading]             = useState(false);
+  const [lecturers, setLecturers]         = useState([]);
   const [availableStudents, setAvailableStudents] = useState([]);
-  const [newMemberIds, setNewMemberIds] = useState([]);
+  const [expandedMembers, setExpandedMembers]     = useState({}); // groupCode → members[]
+  const [membersLoading, setMembersLoading]       = useState({});
 
-  const initialFormState = {
-    groupCode: "",
-    groupName: "",
-    lecturerId: "",
-    leaderId: "",
-    memberIds: [],
-    status: "active",
-  };
+  // Modal state
+  const [modalOpen, setModalOpen]   = useState(false);
+  const [editingGroup, setEditingGroup] = useState(null);
+  const [saving, setSaving]         = useState(false);
+  const [form] = Form.useForm();
 
-  const [formData, setFormData] = useState(initialFormState);
+  /* ─── Fetch helpers ─── */
+  const fetchGroups = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await AdminGroupService.getAllGroups();
+      setGroups((res.data || []).map(g => ({ ...g, key: g.groupCode })));
+    } catch {
+      toast.error("Failed to load groups");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchLecturers = useCallback(async () => {
+    try {
+      const res = await AdminGroupService.getLecturers();
+      setLecturers(res.data || []);
+    } catch { /* silent */ }
+  }, []);
+
+  const fetchAvailableStudents = useCallback(async () => {
+    try {
+      const res = await AdminGroupService.getStudents();
+      setAvailableStudents(res.data || []);
+    } catch { /* silent */ }
+  }, []);
 
   useEffect(() => {
     fetchGroups();
     fetchLecturers();
     fetchAvailableStudents();
-  }, []);
+  }, [fetchGroups, fetchLecturers, fetchAvailableStudents]);
 
-  useEffect(() => {
-    if (editingGroup) {
-      handleExpand(editingGroup.groupCode);
-    }
-  }, [editingGroup]);
-
-  const resetForm = () => {
-    setFormData(initialFormState);
-    setNewMemberIds([]);
-    setEditingGroup(null);
-  };
-
-  const fetchGroups = async () => {
+  /* ─── Expand row: load members ─── */
+  const loadMembers = async (groupCode) => {
     try {
-      setLoading(true);
-      const res = await AdminGroupService.getAllGroups();
-      setGroups((res.data || []).filter(g => g.status === "active"));
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch groups");
+      setMembersLoading(p => ({ ...p, [groupCode]: true }));
+      const res = await AdminGroupService.getGroupDetail(groupCode);
+      setExpandedMembers(p => ({ ...p, [groupCode]: res.data?.members || [] }));
+    } catch {
+      toast.error("Failed to load members");
     } finally {
-      setLoading(false);
+      setMembersLoading(p => ({ ...p, [groupCode]: false }));
     }
   };
 
-  const fetchLecturers = async () => {
+  const handleExpand = (expanded, record) => {
+    if (expanded && !expandedMembers[record.groupCode]) {
+      loadMembers(record.groupCode);
+    }
+  };
+
+  const handleMemberRemoved = (groupCode) => {
+    loadMembers(groupCode);
+    fetchAvailableStudents();
+  };
+
+  /* ─── Modal helpers ─── */
+  const openCreate = () => {
+    setEditingGroup(null);
+    form.resetFields();
+    setModalOpen(true);
+  };
+
+  const openEdit = async (group) => {
+    setEditingGroup(group);
     try {
-      const res = await AdminGroupService.getLecturers();
-      setLecturers(res.data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const fetchAvailableStudents = async () => {
-    try {
-      const res = await AdminGroupService.getStudents();
-      setAvailableStudents(res.data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleOpenCreate = () => {
-    resetForm();
-    setOpen(true);
-  };
-
-  const handleOpenEdit = async (group) => {
-    try{
-      setEditingGroup(group);
       const res = await AdminGroupService.getGroupDetail(group.groupCode);
-
-      setGroupMembers(prev => ({
-        ...prev,
-        [group.groupCode]: res.data.members
-      }));
-
-      setFormData({
-        groupCode: group.groupCode || "",
-        groupName: group.groupName || "",
-        lecturerId: group.lecturerId || "",
-        leaderId: group.leaderId || "",
-        memberIds: [],
-        status: group.status || "active",
+      setExpandedMembers(p => ({ ...p, [group.groupCode]: res.data?.members || [] }));
+      form.resetFields();
+      form.setFieldsValue({
+        groupCode:  group.groupCode,
+        groupName:  group.groupName,
+        lecturerId: group.lecturerId ? String(group.lecturerId) : undefined,
+        leaderId:   group.leaderId   ? String(group.leaderId)   : undefined,
+        status:     group.status || "active",
+        newMemberIds: [],
       });
-
-      setNewMemberIds([]);
-      setOpen(true);
-    }catch(err) {
-      console.error(err);
+    } catch {
       toast.error("Failed to load group detail");
+      return;
     }
+    setModalOpen(true);
   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleLeaderChange = (e) => {
-    const leaderId = e.target.value;
-
-    let members = [...formData.memberIds];
-
-    if (!members.includes(leaderId)) {
-      members.push(leaderId);
-    }
-
-    setFormData({
-      ...formData,
-      leaderId,
-      memberIds: members,
-    });
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.groupCode || !formData.groupName) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-
-    if (!formData.leaderId) {
-      toast.error("Please select a leader");
-      return;
-    }
-
-    if (!formData.lecturerId) {
-      toast.error("Please select a lecturer");
-      return;
-    }
-
-    if (!editingGroup && formData.memberIds.length === 0) {
-      toast.error("Please select at least 1 member");
-      return;
-    }
-
+  const handleSave = async () => {
+    const values = await form.validateFields();
     try {
+      setSaving(true);
       if (editingGroup) {
-        await AdminGroupService.updateGroup(
-          editingGroup.groupCode,
-          {
-            groupCode: formData.groupCode,
-            groupName: formData.groupName,
-            lecturerId: String(formData.lecturerId),
-            leaderId: String(formData.leaderId),
-            status: formData.status
-          }
-        );
-
-        if (newMemberIds.length > 0) {
-          await AdminGroupService.addMembers(
-            editingGroup.groupCode,
-            {
-              studentIdentifiers: newMemberIds.map(Number)
-            }
-          );
-        }
-
-        toast.success("Group updated successfully!");
-      } else {
-        const existing = groups.find(
-          g => g.groupCode === formData.groupCode
-        );
-
-        if (existing) {
-          toast.error("Group code already exists!");
-          return;
-        }
-
-        let members = formData.memberIds.map(Number);
-
-        if (!members.includes(Number(formData.leaderId))) {
-          members.push(Number(formData.leaderId));
-        }
-
-        const uniqueMembers = [...new Set(members)];
-
-        await AdminGroupService.createGroup({
-          groupCode: formData.groupCode,
-          groupName: formData.groupName,
-          lecturerId: String(formData.lecturerId),
-          leaderId: String(formData.leaderId),
-          memberIds: uniqueMembers.map(String)
+        await AdminGroupService.updateGroup(editingGroup.groupCode, {
+          groupCode:  values.groupCode,
+          groupName:  values.groupName,
+          lecturerId: String(values.lecturerId),
+          leaderId:   String(values.leaderId),
+          status:     values.status,
         });
-
-        toast.success("Group created successfully!");
+        if (values.newMemberIds?.length) {
+          await AdminGroupService.addMembers(editingGroup.groupCode, {
+            studentIdentifiers: values.newMemberIds.map(Number),
+          });
+        }
+        toast.success("Group updated!");
+      } else {
+        const members = [...new Set([
+          ...( values.memberIds || []).map(Number),
+          Number(values.leaderId),
+        ])];
+        await AdminGroupService.createGroup({
+          groupCode:  values.groupCode,
+          groupName:  values.groupName,
+          lecturerId: String(values.lecturerId),
+          leaderId:   String(values.leaderId),
+          memberIds:  members.map(String),
+        });
+        toast.success("Group created!");
       }
-
-      setOpen(false);
-      resetForm();
+      setModalOpen(false);
       fetchGroups();
       fetchAvailableStudents();
-
     } catch (err) {
-      console.error(err);
-      toast.error("Operation failed");
+      toast.error(err?.response?.data?.message || "Operation failed");
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleDelete = async (groupCode) => {
-    if (!window.confirm("Delete this group?")) return;
-
+  const handleDelete = async (group) => {
     try {
-      await AdminGroupService.deleteGroup(groupCode);
+      await AdminGroupService.deleteGroup(group.groupCode);
       toast.success("Group deleted");
       fetchGroups();
       fetchAvailableStudents();
     } catch (err) {
-      console.error(err);
-      toast.error("Delete failed");
+      toast.error(err?.response?.data?.message || "Delete failed");
     }
   };
 
-  const handleExpand = async (groupCode) => {
-    if (expandedGroup === groupCode) {
-      setExpandedGroup(null);
-      return;
-    }
+  /* ─── Column definition ─── */
+  const columns = [
+    { title: "Code",     dataIndex: "groupCode",    key: "groupCode",    width: 110 },
+    {
+      title: "Name", dataIndex: "groupName", key: "groupName",
+      render: (v, row) => (
+        <div>
+          <div className="font-semibold">{v}</div>
+          <Text type="secondary" className="text-xs">{row.memberCount ?? 0} member(s)</Text>
+        </div>
+      ),
+    },
+    { title: "Leader",   dataIndex: "leaderName",   key: "leader",   render: v => v || <Text type="secondary">—</Text> },
+    { title: "Lecturer", dataIndex: "lecturerName", key: "lecturer", render: v => v || <Text type="secondary">—</Text> },
+    {
+      title: "Status", dataIndex: "status", key: "status", width: 100,
+      render: s => <Tag color={STATUS_COLOR[s] || "default"}>{s}</Tag>,
+    },
+    {
+      title: "Actions", key: "actions", width: 130,
+      render: (_, row) => (
+        <div className="flex gap-2">
+          <Tooltip title="Edit">
+            <Button size="small" icon={<EditOutlined />} onClick={e => { e.stopPropagation(); openEdit(row); }} />
+          </Tooltip>
+          <Popconfirm
+            title="Delete this group?"
+            onConfirm={() => handleDelete(row)}
+            okButtonProps={{ danger: true }}
+            okText="Delete"
+          >
+            <Tooltip title="Delete">
+              <Button size="small" danger icon={<DeleteOutlined />} onClick={e => e.stopPropagation()} />
+            </Tooltip>
+          </Popconfirm>
+        </div>
+      ),
+    },
+  ];
 
-    try {
-      const res = await AdminGroupService.getGroupDetail(groupCode);
-
-      setGroupMembers((prev) => ({
-        ...prev,
-        [groupCode]: res.data.members
-      }));
-
-      setExpandedGroup(groupCode);
-    } catch (err) {
-      console.error(err);
-    }
+  /* ─── Expanded row render ─── */
+  const expandedRowRender = (record) => {
+    const members = expandedMembers[record.groupCode] || [];
+    return (
+      <div className="px-4 pb-4">
+        <div className="mb-2 flex items-center justify-between">
+          <Text strong><TeamOutlined className="mr-1" />Members</Text>
+          <Select
+            mode="multiple"
+            placeholder="Add more students…"
+            allowClear
+            showSearch
+            optionFilterProp="label"
+            className="w-64"
+            options={availableStudents.map(s => ({ value: s.userId, label: `${s.fullName} (${s.email})` }))}
+            onChange={async (ids) => {
+              if (!ids.length) return;
+              try {
+                await AdminGroupService.addMembers(record.groupCode, { studentIdentifiers: ids.map(Number) });
+                toast.success("Members added!");
+                handleMemberRemoved(record.groupCode);
+              } catch (err) {
+                toast.error(err?.response?.data?.message || "Add failed");
+              }
+            }}
+          />
+        </div>
+        <Table
+          columns={MemberColumns(record.groupCode, handleMemberRemoved)}
+          dataSource={(members || []).map(m => ({ ...m, key: m.userId }))}
+          pagination={false}
+          size="small"
+          loading={membersLoading[record.groupCode]}
+        />
+      </div>
+    );
   };
+
+  const isEditing = !!editingGroup;
+  const currentMembers = isEditing ? (expandedMembers[editingGroup?.groupCode] || []) : [];
 
   return (
     <>
-      <div className="page-header">
-        <h1>Manage Student Groups</h1>
+      <div className="space-y-4 p-4 md:p-6 xl:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <Title level={2} className="!mb-1">Manage Groups</Title>
+            <Text type="secondary">Create and manage student groups</Text>
+          </div>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={openCreate}
+            style={{ backgroundColor: "#10b981", borderColor: "#10b981" }}
+            className="text-white hover:!bg-emerald-600 hover:!border-emerald-600"
+          >
+            Create Group
+          </Button>
+        </div>
 
-        <button
-          className="btn-primary"
-          onClick={handleOpenCreate}
-        >
-          + Create New Group
-        </button>
+        <Card className="rounded-3xl shadow-sm">
+          <Table
+            columns={columns}
+            dataSource={groups}
+            loading={loading}
+            pagination={{ pageSize: 10 }}
+            size="middle"
+            scroll={{ x: 700 }}
+            expandable={{
+              expandedRowRender,
+              onExpand: handleExpand,
+            }}
+          />
+        </Card>
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>GROUP ID</th>
-              <th>GROUP NAME</th>
-              <th>LEADER</th>
-              <th>LECTURER</th>
-              <th>PROJECT</th>
-              <th>ACTION</th>
-            </tr>
-          </thead>
+      {/* Create / Edit modal */}
+      <Form.Provider>
+        <Form
+          form={form}
+          layout="vertical"
+        >
+          <div style={{ display: "none" }} /> {/* prevents uncontrolled error before modal opens */}
+        </Form>
+      </Form.Provider>
 
-          <tbody>
-            {groups.map(group => (
-              <React.Fragment key={group.groupCode}>
-                <tr
-                  onClick={() => handleExpand(group.groupCode)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <td>{group.groupCode}</td>
-
-                  <td>
-                    <strong>{group.groupName}</strong>
-                    <p>{group.memberCount} Members</p>
-                  </td>
-
-                  <td>{group.leaderName || "No leader"}</td>
-
-                  <td>{group.lecturerName}</td>
-
-                  <td>
-                    <span className="badge">
-                      {group.status}
-                    </span>
-                  </td>
-
-                  <td>
-                    <div className="action-buttons">
-                      <button
-                        className="btn-edit"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenEdit(group);
-                        }}
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        className="btn-delete"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(group.groupCode);
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-
-                {expandedGroup === group.groupCode && (
-                  <tr>
-                    <td colSpan="6">
-                      <table className="member-table">
-                        <thead>
-                          <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Leader</th>
-                            <th>Joined At</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {groupMembers[group.groupCode]?.map((m) => (
-                            <tr key={m.memberId}>
-                              <td>{m.userName}</td>
-                              <td>{m.email}</td>
-                              <td>{m.isLeader ? "Leader" : "-"}</td>
-                              <td>{m.joinedAt}</td>
-                              <td>
-                                {!m.isLeader && (
-                                  <button
-                                    className="btn-remove"
-                                    onClick={async (e) => {
-                                      e.stopPropagation();
-
-                                      if (!window.confirm("Remove this member?")) return;
-
-                                      await AdminGroupService.removeMember(
-                                        group.groupCode,
-                                        m.userId
-                                      );
-
-                                      toast.success("Member removed!");
-                                      handleExpand(group.groupCode);
-                                      fetchAvailableStudents();
-                                    }}
-                                  >
-                                    Remove
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      <Modal
-        title={editingGroup ? "Edit Group" : "Create New Group"}
-        open={open}
-        onClose={() => {
-          setOpen(false);
-          resetForm();
-        }}
-      >
-        <div className="modal-form">
-
-          <input
-            name="groupCode"
-            placeholder="Group Code (SE0000)"
-            value={formData.groupCode}
-            onChange={handleChange}
-          />
-
-          <input
-            name="groupName"
-            placeholder="Group Name"
-            value={formData.groupName}
-            onChange={handleChange}
-          />
-
-          <select
-            name="lecturerId"
-            value={formData.lecturerId}
-            onChange={handleChange}
+      {modalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl"
+            onClick={e => e.stopPropagation()}
+            style={{ maxHeight: "90vh", overflowY: "auto" }}
           >
-            <option value="">Select Lecturer</option>
-            {lecturers.map(l => (
-              <option key={l.userId} value={l.userId}>
-                {l.fullName}
-              </option>
-            ))}
-          </select>
+            <h2 className="mb-4 text-lg font-semibold">
+              {isEditing ? `Edit Group — ${editingGroup.groupCode}` : "Create New Group"}
+            </h2>
 
-          <select
-            name="leaderId"
-            value={formData.leaderId}
-            onChange={handleLeaderChange}
-          >
-            <option value="">Select Leader</option>
-            {(editingGroup
-              ? groupMembers[editingGroup.groupCode] || []
-              : availableStudents
-            ).map(s => (
-              <option key={s.userId} value={s.userId}>
-                {s.fullName}
-              </option>
-            ))}
-          </select>
+            <Form form={form} layout="vertical">
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item label="Group Code" name="groupCode" rules={[{ required: true, pattern: /^SE\d+$/, message: "Format: SE0000" }]}>
+                    <Input placeholder="SE1234" disabled={isEditing} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="Group Name" name="groupName" rules={[{ required: true }]}>
+                    <Input placeholder="Group Name" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          {!editingGroup && (
-            <select
-              multiple
-              value={formData.memberIds}
-              onChange={(e) => {
-                const values = Array.from(
-                  e.target.selectedOptions,
-                  option => option.value
-                );
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item label="Lecturer" name="lecturerId" rules={[{ required: true, message: "Select a lecturer" }]}>
+                    <Select
+                      placeholder="Select Lecturer"
+                      showSearch
+                      optionFilterProp="label"
+                      options={lecturers.map(l => ({ value: String(l.userId), label: l.fullName }))}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="Leader" name="leaderId" rules={[{ required: true, message: "Select a leader" }]}>
+                    <Select
+                      placeholder="Select Leader"
+                      showSearch
+                      optionFilterProp="label"
+                      options={
+                        isEditing
+                          ? currentMembers.map(m => ({ value: String(m.userId), label: m.fullName || m.userName }))
+                          : availableStudents.map(s => ({ value: String(s.userId), label: `${s.fullName} (${s.email})` }))
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-                setFormData({
-                  ...formData,
-                  memberIds: values,
-                });
-              }}
-            >
-              {availableStudents.map(s => (
-                <option key={s.userId} value={s.userId}>
-                  {s.fullName}
-                </option>
-              ))}
-            </select>
-          )}
+              {!isEditing && (
+                <Form.Item label="Initial Members" name="memberIds">
+                  <Select
+                    mode="multiple"
+                    placeholder="Select members (leader auto-included)"
+                    showSearch
+                    allowClear
+                    optionFilterProp="label"
+                    options={availableStudents.map(s => ({ value: String(s.userId), label: `${s.fullName} (${s.email})` }))}
+                  />
+                </Form.Item>
+              )}
 
-          {editingGroup && (
-            <select
-              multiple
-              value={newMemberIds}
-              onChange={(e) => {
-                const values = Array.from(
-                  e.target.selectedOptions,
-                  option => option.value
-                );
+              {isEditing && (
+                <>
+                  <Form.Item label="Add More Members" name="newMemberIds">
+                    <Select
+                      mode="multiple"
+                      placeholder="Select students to add…"
+                      showSearch
+                      allowClear
+                      optionFilterProp="label"
+                      options={availableStudents.map(s => ({ value: String(s.userId), label: `${s.fullName} (${s.email})` }))}
+                    />
+                  </Form.Item>
+                  <Form.Item label="Status" name="status">
+                    <Select options={[{ value: "active", label: "Active" }, { value: "inactive", label: "Inactive" }]} />
+                  </Form.Item>
+                </>
+              )}
+            </Form>
 
-                setNewMemberIds(values);
-              }}
-            >
-              {availableStudents.map(s => (
-                <option key={s.userId} value={s.userId}>
-                  {s.fullName}
-                </option>
-              ))}
-            </select>
-          )}
-
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-          >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-
-          <button
-            className="btn-primary full"
-            onClick={handleSubmit}
-          >
-            {editingGroup ? "Update Group" : "Create Group"}
-          </button>
+            <div className="mt-4 flex justify-end gap-3">
+              <Button onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button
+                type="primary"
+                loading={saving}
+                onClick={handleSave}
+                style={{ backgroundColor: "#10b981", borderColor: "#10b981" }}
+              >
+                {isEditing ? "Update" : "Create"}
+              </Button>
+            </div>
+          </div>
         </div>
-      </Modal>
-
-      <Pagination
-        page={page}
-        totalPages={5}
-        onChange={setPage}
-      />
+      )}
     </>
   );
 }

@@ -13,6 +13,40 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Async load profile details if the JWT lacks fullName
+  useEffect(() => {
+    const fetchMissingProfile = async () => {
+      if (!user || user.fullName || !user.role) return;
+      
+      try {
+        let fetchedName = null;
+        const sub = user.sub || decodeJWT(user.accessToken)?.sub;
+        
+        if (user.role.toLowerCase() === "admin" && sub) {
+          const { AdminUserService } = await import("../services/admin/adminUser.service");
+          const res = await AdminUserService.getUser(sub);
+          fetchedName = res.data?.fullName;
+        } else if (user.role.toLowerCase() === "student") {
+          const { StudentService } = await import("../services/student.service");
+          const res = await StudentService.getProfile();
+          fetchedName = res.data?.fullName;
+        }
+
+        if (fetchedName) {
+          setUser(prev => {
+            const updated = { ...prev, fullName: fetchedName };
+            localStorage.setItem(LOCAL_STORAGE.AUTH_USER, JSON.stringify(updated));
+            return updated;
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch missing profile for navbar name:", err);
+      }
+    };
+    
+    fetchMissingProfile();
+  }, [user]);
+
   // Check if user is logged in on mount
   useEffect(() => {
     const initializeAuth = () => {
@@ -20,6 +54,18 @@ export const AuthProvider = ({ children }) => {
       if (storedUser) {
         try {
           const userData = JSON.parse(storedUser);
+          // If fullName is missing (old session), try to extract from stored token
+          if (!userData.fullName && userData.accessToken) {
+            const decoded = decodeJWT(userData.accessToken);
+            userData.fullName =
+              decoded?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
+              decoded?.fullName ||
+              decoded?.name ||
+              decoded?.given_name ||
+              null;
+            // Persist the enriched object back
+            localStorage.setItem(LOCAL_STORAGE.AUTH_USER, JSON.stringify(userData));
+          }
           setUser(userData);
         } catch (error) {
           console.error("Error parsing stored user:", error);
@@ -44,10 +90,20 @@ export const AuthProvider = ({ children }) => {
             "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
           ] || decodedToken?.role;
 
+        // Try common claim names for the user's display name
+        const fullName =
+          decodedToken?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
+          decodedToken?.fullName ||
+          decodedToken?.name ||
+          decodedToken?.given_name ||
+          response.data?.fullName ||
+          null;
+
         const userData = {
           ...response.data,
           role: userRole,
           email: decodedToken?.email || decodedToken?.sub,
+          fullName,
         };
 
         localStorage.setItem(LOCAL_STORAGE.AUTH_USER, JSON.stringify(userData));

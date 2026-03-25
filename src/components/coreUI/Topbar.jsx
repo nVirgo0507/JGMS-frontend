@@ -1,6 +1,8 @@
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { ROUTER_URL } from "../../consts/router.const";
 import "./Topbar.css";
 
 export default function Topbar({
@@ -10,6 +12,7 @@ export default function Topbar({
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -26,8 +29,16 @@ export default function Topbar({
     logout();
   };
 
-  const avatarLetter = user?.email?.charAt(0).toUpperCase() || "U";
-  const displayName = user?.email?.split("@")[0] || "User";
+  const handleProfile = () => {
+    setOpen(false);
+    const role = user?.role?.toLowerCase();
+    if (role === 'admin') navigate(ROUTER_URL.ADMIN.PROFILE);
+    else if (role === 'lecturer') navigate(ROUTER_URL.LECTURER.PROFILE);
+    else if (role === 'student') navigate(ROUTER_URL.STUDENT.PROFILE);
+  };
+
+  const displayName = user?.fullName || user?.email?.split("@")[0] || "User";
+  const avatarLetter = (user?.fullName || user?.email || "U").charAt(0).toUpperCase();
 
   return (
     <div className="topbar">
@@ -53,8 +64,7 @@ export default function Topbar({
 
         {open && (
           <div className="dropdown">
-            <button>View Profile</button>
-            <button>Settings</button>
+            <button onClick={handleProfile}>View Profile</button>
             <hr />
             <button className="danger" onClick={handleLogout}>
               Logout

@@ -62,16 +62,6 @@ const mapDocument = (item) => ({
   updatedAtLabel: formatDateTime(item.updatedAt),
 });
 
-const isLeaderInGroup = (group, email) => {
-  const currentEmail = email?.toLowerCase();
-  if (!currentEmail || !Array.isArray(group?.members)) return false;
-
-  return group.members.some(
-    (member) =>
-      member?.isLeader && member?.email?.toLowerCase() === currentEmail,
-  );
-};
-
 const triggerDownload = (blob, fileName) => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -121,10 +111,9 @@ export default function Documents() {
     fetchGroup();
   }, []);
 
-  const isLeader = useMemo(
-    () => isLeaderInGroup(group, user?.email),
-    [group, user?.email],
-  );
+  const isLeader = useMemo(() => {
+    return group?.isLeader === true;
+  }, [group?.isLeader]);
 
   const rows = useMemo(
     () =>

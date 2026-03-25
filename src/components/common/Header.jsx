@@ -62,12 +62,16 @@ const Header = () => {
 
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
-            <div className="relative" ref={dropdownRef}>
+                      <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
-                <span>{user?.email}</span>
+                {/* Avatar circle with initials */}
+                <span className="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
+                  {(user?.fullName || user?.email || "?").charAt(0).toUpperCase()}
+                </span>
+                <span className="hidden sm:block">{user?.fullName || user?.email}</span>
                 <svg
                   className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
                   fill="none"
@@ -84,7 +88,17 @@ const Header = () => {
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-lg border border-slate-200 bg-white shadow-lg py-1 z-50">
+                <div className="absolute right-0 mt-2 w-56 rounded-lg border border-slate-200 bg-white shadow-lg py-1 z-50">
+                  {/* User info header */}
+                  <div className="px-4 py-3 border-b border-slate-100">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{user?.fullName || "—"}</p>
+                    <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+                    {user?.role && (
+                      <span className="mt-1 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 capitalize">
+                        {user.role}
+                      </span>
+                    )}
+                  </div>
                   <Link
                     to={getDashboardUrl()}
                     onClick={(e) => {
@@ -94,16 +108,6 @@ const Header = () => {
                     className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 transition"
                   >
                     Dashboard
-                  </Link>
-                  <Link
-                    to={getProfileUrl()}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 transition"
-                  >
-                    Profile
                   </Link>
                   <hr className="my-1 border-slate-200" />
                   <button

@@ -1,0 +1,6660 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "SWP391 JGMS API",
+    "description": "Jira & GitHub Management System — API for frontend integration.\n\n**Auth flow:** POST `/api/auth/login` → get `accessToken` → click 'Authorize' button above → paste token.",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/admin/users": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a new user (admin, lecturer, or student).",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateUserDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateUserDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all users.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/users/{userIdentifier}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update user information.\r\nAccepts email or numeric user ID.",
+        "parameters": [
+          {
+            "name": "userIdentifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateUserDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateUserDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get user by email or numeric user ID.",
+        "parameters": [
+          {
+            "name": "userIdentifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete user. Accepts email or numeric user ID.",
+        "parameters": [
+          {
+            "name": "userIdentifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/users/role/{role}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get users by role (admin, lecturer, student).",
+        "parameters": [
+          {
+            "name": "role",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/users/search": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Search users by name or email (partial match, case-insensitive).\r\nOptionally filter by role (admin, lecturer, student).\r\nUseful for finding users without knowing their numeric ID.\r\nExample: GET /api/admin/users/search?q=nguyen&role=student",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/users/{userIdentifier}/status": {
+      "patch": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Set user status (active/inactive). Accepts email or numeric user ID.",
+        "parameters": [
+          {
+            "name": "userIdentifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.SetUserStatusDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.SetUserStatusDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.SetUserStatusDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/groups": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a new student group.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateStudentGroupDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateStudentGroupDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateStudentGroupDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all student groups.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/groups/{groupCode}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update student group. Accepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateStudentGroupDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateStudentGroupDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateStudentGroupDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get student group by group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete student group. Accepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/lecturers": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all active lecturers.\r\nUse this to populate the lecturer picker when creating a group.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/students/available": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all active students who are NOT currently in any group.\r\nUse this to populate the student picker (leader + members) when creating or filling a group.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/groups/{groupCode}/members": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Add one or more students to a group in a single request.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.\r\nEach student identifier can be an email address or a numeric user ID.\r\nReturns a summary of added students and any failures (with reasons).",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.AddStudentsToGroupDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.AddStudentsToGroupDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.AddStudentsToGroupDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Clear all members from a group. Only allowed when the group's project is marked as completed.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/groups/{groupCode}/members/{studentIdentifier}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Remove student from group.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.\r\nAccepts student numeric user ID or email address.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentIdentifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/users/{userIdentifier}/github": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Configure GitHub integration for a user — sets their github_username.\r\nAccepts email or numeric user ID.",
+        "parameters": [
+          {
+            "name": "userIdentifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.GitHubConfigureRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.GitHubConfigureRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.GitHubConfigureRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.UserResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Remove GitHub integration for a user — clears their github_username.\r\nAccepts email or numeric user ID.",
+        "parameters": [
+          {
+            "name": "userIdentifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.UserResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{userIdentifier}/jira": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Configure Jira integration for a user — sets their jira_account_id.\r\nAccepts email or numeric user ID.",
+        "parameters": [
+          {
+            "name": "userIdentifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.JiraConfigureRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.JiraConfigureRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.JiraConfigureRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.UserResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Remove Jira integration for a user — clears their jira_account_id.\r\nAccepts email or numeric user ID.",
+        "parameters": [
+          {
+            "name": "userIdentifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.UserResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/integrations": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all users with their GitHub/Jira integration status.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.IntegrationStatusDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/integrations/test": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Test integration connectivity (GitHub or Jira).\r\nPass integrationType = \"GitHub\" or \"Jira\".",
+        "parameters": [
+          {
+            "name": "integrationType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.IntegrationTestResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/groups/{groupCode}/project": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a project for a group. Each group can only have one project.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID in the route.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateProjectDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateProjectDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateProjectDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.ProjectResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get the project for a specific group.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.ProjectResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a project. Accepts group code (e.g. \"SE1234\") or numeric group ID to find the project.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateProjectDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateProjectDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateProjectDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.ProjectResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a project. Accepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/projects": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all projects.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.ProjectResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/groups/{groupCode}/project/integrations/github": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Configure GitHub integration for a project.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.GitHubIntegrationConfigDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.GitHubIntegrationConfigDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.GitHubIntegrationConfigDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/security/rotate-encryption-key": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Rotates the AES encryption key for all stored GitHub API tokens.\r\n            \r\nHow to use when key is compromised:\r\n1. Generate a new 32-byte Base64 key (e.g. via: openssl rand -base64 32)\r\n2. Call this endpoint with the new key — all tokens are re-encrypted atomically\r\n3. Update the Encryption__Key environment variable on Render to the new key\r\n4. Redeploy the app\r\n            \r\nThe old key must still be active (in env var) when calling this endpoint.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.RotateKeyDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.RotateKeyDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.RotateKeyDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new student account.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.RegisterDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.RegisterDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.RegisterDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/register/lecturer": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new lecturer account.\r\nDoes not require student code, GitHub username, or Jira account ID.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.RegisterLecturerDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.RegisterLecturerDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.RegisterLecturerDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login with email and password. Returns a JWT access token.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.LoginDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.LoginDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.LoginDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/github/{projectId}/branches": {
+      "get": {
+        "tags": [
+          "Github"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Github.GithubBranchDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Github.GithubBranchDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Github.GithubBranchDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/github/{projectId}/pull-requests": {
+      "get": {
+        "tags": [
+          "Github"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Github.GithubPullRequestDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Github.GithubPullRequestDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Github.GithubPullRequestDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/github/{projectId}/commits": {
+      "get": {
+        "tags": [
+          "Github"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/github/{projectId}/sync": {
+      "post": {
+        "tags": [
+          "Github"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "forceFullResync",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/github/webhook": {
+      "post": {
+        "tags": [
+          "Github"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/jira/groups/{groupCode}/integration": {
+      "post": {
+        "tags": [
+          "Jira"
+        ],
+        "summary": "Configure Jira integration for a project (Admin only).\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "description": "Sample request:\r\n            \r\n    POST /api/jira/groups/SE1234/integration\r\n    {\r\n        \"jiraUrl\": \"https://yourcompany.atlassian.net\",\r\n        \"jiraEmail\": \"admin@fpt.edu.vn\",\r\n        \"apiToken\": \"ATATT3xFfGN0...\",\r\n        \"projectKey\": \"SWP391\"\r\n    }",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Jira.ConfigureJiraIntegrationDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Jira.ConfigureJiraIntegrationDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Jira.ConfigureJiraIntegrationDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Jira"
+        ],
+        "summary": "Get Jira integration configuration for a project.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Jira"
+        ],
+        "summary": "Update Jira integration configuration (Admin only).\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Jira.ConfigureJiraIntegrationDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Jira.ConfigureJiraIntegrationDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Jira.ConfigureJiraIntegrationDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Jira"
+        ],
+        "summary": "Delete Jira integration configuration (Admin only).\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/jira/groups/{groupCode}/integration/test": {
+      "get": {
+        "tags": [
+          "Jira"
+        ],
+        "summary": "Test Jira connection (Admin only).\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraConnectionTestDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraConnectionTestDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraConnectionTestDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jira/integrations": {
+      "get": {
+        "tags": [
+          "Jira"
+        ],
+        "summary": "Get all Jira integrations (Admin only).",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIntegrationResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jira/groups/{groupCode}/sync": {
+      "post": {
+        "tags": [
+          "Jira"
+        ],
+        "summary": "Sync issues from Jira to database (Admin or Team Leader).\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraSyncResultDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraSyncResultDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraSyncResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jira/groups/{groupCode}/sync-status": {
+      "get": {
+        "tags": [
+          "Jira"
+        ],
+        "summary": "Get sync status for a group's project.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraSyncResultDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraSyncResultDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraSyncResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jira/groups/{groupCode}/issues": {
+      "get": {
+        "tags": [
+          "Jira"
+        ],
+        "summary": "Get all synced Jira issues for a group's project (role-based filtering).\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIssueDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIssueDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIssueDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jira/issues/{issueKey}": {
+      "get": {
+        "tags": [
+          "Jira"
+        ],
+        "summary": "Get single issue details by issue key (e.g. \"SWP391-123\").",
+        "parameters": [
+          {
+            "name": "issueKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIssueDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIssueDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraIssueDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lecturers/groups": {
+      "get": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Get all groups assigned to the current lecturer.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.StudentGroupResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lecturers/groups/{groupCode}": {
+      "get": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Get details of a specific group assigned to the lecturer.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.StudentGroupResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Update a group assigned to the lecturer.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateStudentGroupDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateStudentGroupDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateStudentGroupDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.StudentGroupResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lecturers/groups/{groupCode}/members": {
+      "get": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Get all members in a group assigned to the lecturer.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.GroupMemberResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Add one or more students to a group assigned to the lecturer.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.\r\nEach student identifier can be an email address or a numeric user ID.\r\nReturns a summary of added students and any failures (with reasons).",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.AddStudentsToGroupDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.AddStudentsToGroupDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.AddStudentsToGroupDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lecturers/groups/{groupCode}/members/{studentIdentifier}": {
+      "delete": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Remove a student from a group assigned to the lecturer.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.\r\nAccepts student numeric user ID or email address.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentIdentifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lecturers/groups/{groupCode}/requirements": {
+      "get": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Get all requirements for the assigned group's project.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.RequirementResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lecturers/groups/{groupCode}/tasks": {
+      "get": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Get all tasks for the assigned group's project.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.TaskResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lecturers/groups/{groupCode}/progress-reports": {
+      "get": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Get progress reports for the assigned group's project.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.ProgressReportResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lecturers/groups/{groupCode}/progress-reports/{reportId}/export": {
+      "get": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Export a progress report for the assigned group's project.\r\nSupported formats: word, pdf.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "pdf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lecturers/groups/{groupCode}/commit-statistics": {
+      "get": {
+        "tags": [
+          "Lecturer"
+        ],
+        "summary": "Get aggregated GitHub commit statistics for the assigned group's project.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.GroupCommitStatisticsResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/tasks": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get all tasks assigned to the current student.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Student.TaskResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/tasks/{taskId}": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get a specific task by ID (must be assigned to you).",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Student.TaskResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/commit-line": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Generate an auto commit line suggestion from either task ID or Jira issue key.\r\nSupports optional conventional-commit customization and returns Git/GitHub commands.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Student.CommitLineSuggestionRequestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Student.CommitLineSuggestionRequestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Student.CommitLineSuggestionRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Student.CommitLineSuggestionResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/tasks/{taskId}/status": {
+      "put": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Update the status of a task assigned to you.\r\nAccepted status values (case-insensitive, flexible formatting):\r\n- \"todo\", \"To Do\", \"to do\", \"to_do\"\r\n- \"in_progress\", \"In Progress\", \"in progress\", \"in-progress\"\r\n- \"done\", \"Done\"",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Student.UpdateTaskStatusDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Student.UpdateTaskStatusDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Student.UpdateTaskStatusDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/tasks/{taskId}/complete": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Mark a task as completed — sets CompletedAt timestamp.\r\nOnly works for tasks assigned to you.",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.TaskResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/statistics": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get personal task and commit statistics overview.\r\nShows completed vs pending tasks, commit history, contribution metrics.",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Student.PersonalStatisticsDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/statistics/tasks-by-status": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get task statistics grouped by status (todo, in_progress, done).",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Student.TaskStatisticsByStatusDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/statistics/tasks": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get personal task statistics (completion and progress metrics).",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.PersonalTaskStatisticResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/statistics/commits": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get personal commit statistics (commits this week/month, averages).",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.CommitStatisticResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/commits": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get personal commit history timeline from GitHub.",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Student.CommitHistoryDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/profile": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get current student's profile information.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.UserResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Update basic profile information (phone, GitHub username, Jira account).\r\nStudents can only update specific fields, not role or status.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Student.UpdateProfileDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Student.UpdateProfileDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Student.UpdateProfileDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.UserResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/my-srs-documents/{groupCode}": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get SRS documents for a project, identified by group code (e.g. \"SE1234\") or group ID.\r\nAny group member can access. For leader-only SRS management, see the Group SRS Documents section.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Student.SrsDocumentDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/srs-documents/{documentId}": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get a specific SRS document by ID.",
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Student.SrsDocumentDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/srs-documents/{documentId}/download": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Download SRS document file.\r\nSecurity: Validates file path to prevent directory traversal attacks.",
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/students/my-group": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get the group the current student belongs to.\r\nReturns 404 if the student has not been assigned to a group yet.\r\nIncludes group details, project info, and the list of team members.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Student.MyGroupDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/project": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get project details for a group. Leader only.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.ProjectResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/progress-reports": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get progress reports for a group project. Leader only.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.ProgressReportResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Create a new progress report for a group project. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateProgressReportDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateProgressReportDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateProgressReportDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.ProgressReportResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/progress-reports/template": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get guided template for creating progress reports. Leader only.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.ProgressReportTemplateDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/requirements": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get all requirements for a group project.\r\nAny group member can view; only leaders can create/edit/delete.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.RequirementResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Create a requirement and push it to Jira as a new issue. Leader only.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateRequirementDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateRequirementDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateRequirementDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.RequirementResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/requirements/{requirementId}": {
+      "put": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Update a requirement and sync changes back to Jira. Leader only.\r\nAccepts group code or group ID, and requirement ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requirementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateRequirementDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateRequirementDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateRequirementDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.RequirementResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Delete a requirement and remove the corresponding issue from Jira. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requirementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/requirements/reorder": {
+      "put": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Reorder requirements hierarchy (Epic → Story → Task → Sub-task). Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.ReorderRequirementsDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.ReorderRequirementsDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.ReorderRequirementsDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.RequirementResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/requirements/import-from-jira": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Bulk-import all synced Jira issues as requirements. Leader only.\r\nSkips issues that are already linked to an existing requirement.\r\nRun a Jira sync first to ensure issues are up to date.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.BulkImportFromJiraResultDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/tasks": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get all tasks for a group project. Leader only.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.TaskResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Create a task, assign a member, set deadline and optionally link to Jira. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateTaskDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateTaskDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateTaskDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.TaskResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/tasks/from-jira": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Create a task pre-populated from a synced Jira issue key (e.g. \"SWP391-5\"). Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateTaskFromJiraIssueDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateTaskFromJiraIssueDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateTaskFromJiraIssueDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.TaskResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/tasks/{taskId}": {
+      "put": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Edit a task: update status, assignee, description, priority, due date. Leader only.\r\nChanges are synced back to Jira if the task is linked to a Jira issue.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateTaskDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateTaskDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateTaskDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.TaskResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Delete a task. Also removes the linked Jira issue if integration is configured. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/tasks/{taskId}/assign": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Assign a task to a group member. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.AssignTaskDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.AssignTaskDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.AssignTaskDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/tasks/{taskId}/sprint": {
+      "put": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Move a task's linked Jira issue to a different sprint. Leader only.\r\nUse sprintId = 0 to move the issue back to the backlog.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.MoveTaskToSprintDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.MoveTaskToSprintDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.MoveTaskToSprintDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.TaskResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/tasks/{taskId}/requirement": {
+      "put": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Link a task to a requirement. Creates a \"Relates\" issue link in Jira if applicable. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.LinkTaskToRequirementDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.LinkTaskToRequirementDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.LinkTaskToRequirementDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.TaskResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/sync-to-jira": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Push all local changes (tasks + requirements) to Jira in bulk. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Jira.JiraPushSyncResultDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/srs-documents": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get all SRS documents for a group's project. Leader only.\r\nAccepts group code (e.g. \"SE1234\") or numeric group ID.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BLL.DTOs.Admin.SrsDocumentResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/srs-documents/{documentId}": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Get a single SRS document by ID with all included requirements. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.SrsDocumentResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Update SRS document metadata. Leader only.\r\nSet status to \"published\" to finalize the document.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateSrsDocumentDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateSrsDocumentDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.UpdateSrsDocumentDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.SrsDocumentResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/srs-documents/generate": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Generate an SRS document from existing requirements. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateSrsDocumentDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateSrsDocumentDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.CreateSrsDocumentDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.SrsDocumentResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/srs-documents/{documentId}/download": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Download the SRS document as an HTML file. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/srs-documents/{documentId}/download/doc": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Download the SRS document as a Word-compatible (.doc) file. Leader only.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/msword": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/msword": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/msword": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/groups/{groupCode}/srs-documents/{documentId}/regenerate": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Regenerate the requirements snapshot of an existing SRS document. Leader only.\r\nReplaces all previously included requirements with a fresh selection.\r\nOptionally auto-imports new Jira issues as requirements before regenerating.\r\nDoes NOT create a new SRS version — use the generate endpoint for that.",
+        "parameters": [
+          {
+            "name": "groupCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.RegenerateSrsDocumentDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.RegenerateSrsDocumentDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLL.DTOs.Admin.RegenerateSrsDocumentDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BLL.DTOs.Admin.SrsDocumentResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BLL.DTOs.Admin.AddStudentsToGroupDTO": {
+        "required": [
+          "studentIdentifiers"
+        ],
+        "type": "object",
+        "properties": {
+          "studentIdentifiers": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.AssignTaskDTO": {
+        "required": [
+          "memberId"
+        ],
+        "type": "object",
+        "properties": {
+          "memberId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.BulkImportFromJiraResultDTO": {
+        "type": "object",
+        "properties": {
+          "imported": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "failed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BLL.DTOs.Admin.RequirementResponseDTO"
+            },
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.CommitStatisticResponseDTO": {
+        "required": [
+          "projectId",
+          "statisticId",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "statisticId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCommits": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commitsThisWeek": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commitsThisMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageCommitsPerDay": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "lastCommitDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.CreateProgressReportDTO": {
+        "required": [
+          "reportData",
+          "reportType"
+        ],
+        "type": "object",
+        "properties": {
+          "reportType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "reportPeriodStart": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "reportPeriodEnd": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "reportData": { },
+          "summary": {
+            "maxLength": 2000,
+            "type": "string",
+            "nullable": true
+          },
+          "filePath": {
+            "maxLength": 255,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.CreateProjectDTO": {
+        "required": [
+          "groupCode",
+          "projectName"
+        ],
+        "type": "object",
+        "properties": {
+          "groupCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "projectName": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.CreateRequirementDTO": {
+        "required": [
+          "requirementCode",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "requirementCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirementType": {
+            "type": "string",
+            "nullable": true
+          },
+          "issueType": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraIssueId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.CreateSrsDocumentDTO": {
+        "required": [
+          "documentTitle"
+        ],
+        "type": "object",
+        "properties": {
+          "documentTitle": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "introduction": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "string",
+            "nullable": true
+          },
+          "productPerspective": {
+            "type": "string",
+            "nullable": true
+          },
+          "userClasses": {
+            "type": "string",
+            "nullable": true
+          },
+          "operatingEnvironment": {
+            "type": "string",
+            "nullable": true
+          },
+          "assumptionsDependencies": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirementIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "importFromJira": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.CreateStudentGroupDTO": {
+        "required": [
+          "groupCode",
+          "groupName",
+          "lecturerId"
+        ],
+        "type": "object",
+        "properties": {
+          "groupCode": {
+            "minLength": 1,
+            "pattern": "^SE\\d+$",
+            "type": "string"
+          },
+          "groupName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "lecturerId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "leaderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "memberIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.CreateTaskDTO": {
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirementId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "jiraIssueId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assignedTo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "sprintId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.CreateTaskFromJiraIssueDTO": {
+        "required": [
+          "issueKey"
+        ],
+        "type": "object",
+        "properties": {
+          "issueKey": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "titleOverride": {
+            "type": "string",
+            "nullable": true
+          },
+          "assignedTo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "sprintId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.CreateUserDTO": {
+        "required": [
+          "email",
+          "fullName",
+          "password",
+          "phone",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "fullName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/DAL.Models.UserRole"
+          },
+          "studentCode": {
+            "pattern": "^SE\\d{6}$",
+            "type": "string",
+            "nullable": true
+          },
+          "githubUsername": {
+            "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9]|[a-zA-Z0-9])?$",
+            "type": "string",
+            "nullable": true
+          },
+          "jiraAccountId": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DAL.Models.UserStatus"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.GitHubConfigureRequest": {
+        "required": [
+          "githubUsername"
+        ],
+        "type": "object",
+        "properties": {
+          "githubUsername": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.GitHubIntegrationConfigDTO": {
+        "type": "object",
+        "properties": {
+          "apiToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "repoOwner": {
+            "type": "string",
+            "nullable": true
+          },
+          "repoName": {
+            "type": "string",
+            "nullable": true
+          },
+          "repoUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.GroupCommitStatisticsResponseDTO": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "groupCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "periodStart": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "totalCommits": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalAdditions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDeletions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalChangedFiles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BLL.DTOs.Admin.MemberCommitStatisticsDTO"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.GroupMemberResponseDTO": {
+        "required": [
+          "email",
+          "groupId",
+          "memberId",
+          "userId",
+          "userName"
+        ],
+        "type": "object",
+        "properties": {
+          "memberId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "groupId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "isLeader": {
+            "type": "boolean"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "leftAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.IntegrationStatusDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasGithubIntegration": {
+            "type": "boolean"
+          },
+          "githubUsername": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasJiraIntegration": {
+            "type": "boolean"
+          },
+          "jiraAccountId": {
+            "type": "string",
+            "nullable": true
+          },
+          "configuredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.IntegrationTestResultDTO": {
+        "type": "object",
+        "properties": {
+          "integrationType": {
+            "type": "string",
+            "nullable": true
+          },
+          "isConnected": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "testedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.JiraConfigureRequest": {
+        "required": [
+          "jiraAccountId"
+        ],
+        "type": "object",
+        "properties": {
+          "jiraAccountId": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.LinkTaskToRequirementDTO": {
+        "required": [
+          "requirementId"
+        ],
+        "type": "object",
+        "properties": {
+          "requirementId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.MemberCommitStatisticsDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalCommits": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalAdditions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDeletions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalChangedFiles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commitFrequency": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "avgCommitSize": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "lastCommitDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.MoveTaskToSprintDTO": {
+        "required": [
+          "sprintId"
+        ],
+        "type": "object",
+        "properties": {
+          "sprintId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.PersonalTaskStatisticResponseDTO": {
+        "required": [
+          "projectId",
+          "statisticId",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "statisticId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tasksAssigned": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tasksCompleted": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tasksPending": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completionPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.ProgressReportResponseDTO": {
+        "required": [
+          "generatedBy",
+          "projectId",
+          "reportId",
+          "reportType"
+        ],
+        "type": "object",
+        "properties": {
+          "reportId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "projectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reportType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "reportPeriodStart": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "reportPeriodEnd": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "reportData": {
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "filePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "generatedBy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "generatedByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.ProgressReportTemplateDTO": {
+        "type": "object",
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "allowedReportTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BLL.DTOs.Admin.ProgressReportTemplateFieldDTO"
+            },
+            "nullable": true
+          },
+          "reportDataTemplate": {
+            "nullable": true
+          },
+          "autoGeneratedFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.ProgressReportTemplateFieldDTO": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "label": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputType": {
+            "type": "string",
+            "nullable": true
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "placeholder": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.ProjectResponseDTO": {
+        "required": [
+          "groupId",
+          "projectId",
+          "projectName"
+        ],
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "groupId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "groupCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "groupName": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.RegenerateSrsDocumentDTO": {
+        "type": "object",
+        "properties": {
+          "requirementIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "importFromJira": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.ReorderRequirementsDTO": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BLL.DTOs.Admin.RequirementHierarchyItemDTO"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.RequirementHierarchyItemDTO": {
+        "required": [
+          "order",
+          "requirementId"
+        ],
+        "type": "object",
+        "properties": {
+          "requirementId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.RequirementResponseDTO": {
+        "required": [
+          "projectId",
+          "requirementCode",
+          "requirementId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "requirementId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "projectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "jiraIssueId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "jiraIssueKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirementCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirementType": {
+            "type": "string",
+            "nullable": true
+          },
+          "issueType": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.RotateKeyDTO": {
+        "type": "object",
+        "properties": {
+          "newBase64Key": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.SetUserStatusDTO": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.SrsDocumentResponseDTO": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "projectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "projectName": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "introduction": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "string",
+            "nullable": true
+          },
+          "productPerspective": {
+            "type": "string",
+            "nullable": true
+          },
+          "userClasses": {
+            "type": "string",
+            "nullable": true
+          },
+          "operatingEnvironment": {
+            "type": "string",
+            "nullable": true
+          },
+          "assumptionsDependencies": {
+            "type": "string",
+            "nullable": true
+          },
+          "filePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "generatedBy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "generatedByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BLL.DTOs.Admin.SrsIncludedRequirementDTO"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.SrsIncludedRequirementDTO": {
+        "type": "object",
+        "properties": {
+          "requirementId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sectionNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirementCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirementType": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.StudentGroupResponseDTO": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "groupCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "groupName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lecturerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lecturerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "leaderId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "leaderName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/DAL.Models.UserStatus"
+          },
+          "memberCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BLL.DTOs.Admin.GroupMemberResponseDTO"
+            },
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.TaskResponseDTO": {
+        "required": [
+          "taskId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requirementId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "requirementCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraIssueId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "jiraIssueKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "assignedTo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assignedToName": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "workHours": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "sprintId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "sprintName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.UpdateProjectDTO": {
+        "type": "object",
+        "properties": {
+          "projectName": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.UpdateRequirementDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "requirementType": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraIssueId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.UpdateSrsDocumentDTO": {
+        "type": "object",
+        "properties": {
+          "documentTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "introduction": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "string",
+            "nullable": true
+          },
+          "productPerspective": {
+            "type": "string",
+            "nullable": true
+          },
+          "userClasses": {
+            "type": "string",
+            "nullable": true
+          },
+          "operatingEnvironment": {
+            "type": "string",
+            "nullable": true
+          },
+          "assumptionsDependencies": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.UpdateStudentGroupDTO": {
+        "type": "object",
+        "properties": {
+          "groupCode": {
+            "pattern": "^SE\\d+$",
+            "type": "string",
+            "nullable": true
+          },
+          "groupName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lecturerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "leaderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/DAL.Models.UserStatus"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.UpdateTaskDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "assignedTo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "requirementId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.UpdateUserDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/DAL.Models.UserRole"
+          },
+          "studentCode": {
+            "pattern": "^SE\\d{6}$",
+            "type": "string",
+            "nullable": true
+          },
+          "githubUsername": {
+            "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9]|[a-zA-Z0-9])?$",
+            "type": "string",
+            "nullable": true
+          },
+          "jiraAccountId": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/DAL.Models.UserStatus"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Admin.UserResponseDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/DAL.Models.UserRole"
+          },
+          "studentCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "githubUsername": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraAccountId": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/DAL.Models.UserStatus"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Github.GithubBranchDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastCommitSha": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastCommitMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastCommitAuthor": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastCommitDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Github.GithubPullRequestDto": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          },
+          "htmlUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "author": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "mergedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Jira.ConfigureJiraIntegrationDTO": {
+        "required": [
+          "apiToken",
+          "jiraEmail",
+          "jiraUrl",
+          "projectKey"
+        ],
+        "type": "object",
+        "properties": {
+          "jiraUrl": {
+            "minLength": 1,
+            "type": "string",
+            "format": "uri"
+          },
+          "jiraEmail": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "apiToken": {
+            "minLength": 10,
+            "type": "string"
+          },
+          "projectKey": {
+            "minLength": 1,
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Jira.JiraConnectionTestDTO": {
+        "type": "object",
+        "properties": {
+          "isConnected": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraProjectName": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraProjectKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "testedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Jira.JiraIntegrationResponseDTO": {
+        "type": "object",
+        "properties": {
+          "integrationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "projectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "projectName": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastSync": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "syncStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Jira.JiraIssueDTO": {
+        "type": "object",
+        "properties": {
+          "jiraIssueId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "issueKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraId": {
+            "type": "string",
+            "nullable": true
+          },
+          "issueType": {
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "assigneeJiraId": {
+            "type": "string",
+            "nullable": true
+          },
+          "assigneeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "sprintId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "sprintName": {
+            "type": "string",
+            "nullable": true
+          },
+          "sprintState": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastSynced": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Jira.JiraPushSyncResultDTO": {
+        "type": "object",
+        "properties": {
+          "tasksSynced": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tasksFailed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requirementsSynced": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requirementsFailed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "syncTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Jira.JiraSyncResultDTO": {
+        "type": "object",
+        "properties": {
+          "totalIssues": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newIssues": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updatedIssues": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "failedIssues": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "syncTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.LoginDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.RegisterDTO": {
+        "required": [
+          "email",
+          "fullName",
+          "password",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "fullName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "phone": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "studentCode": {
+            "pattern": "^SE\\d{6}$",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.RegisterLecturerDTO": {
+        "required": [
+          "email",
+          "fullName",
+          "password",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "fullName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "phone": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.CommitHistoryDTO": {
+        "type": "object",
+        "properties": {
+          "commitId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commitMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "additions": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "deletions": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "changedFiles": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "commitDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "projectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "projectName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.CommitLineSuggestionRequestDTO": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "jiraIssueKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeIssueKey": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.CommitLineSuggestionResponseDTO": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "jiraIssueKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "commitLine": {
+            "type": "string",
+            "nullable": true
+          },
+          "gitCommitCommand": {
+            "type": "string",
+            "nullable": true
+          },
+          "gitHubCommand": {
+            "type": "string",
+            "nullable": true
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.MyGroupDTO": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "groupCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "groupName": {
+            "type": "string",
+            "nullable": true
+          },
+          "isLeader": {
+            "type": "boolean"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lecturerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "projectName": {
+            "type": "string",
+            "nullable": true
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BLL.DTOs.Student.MyGroupMemberDTO"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.MyGroupMemberDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "isLeader": {
+            "type": "boolean"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.PersonalStatisticsDTO": {
+        "type": "object",
+        "properties": {
+          "totalTasks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completedTasks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inProgressTasks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overdueTasks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completionRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "lastCalculated": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "totalCommits": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalAdditions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDeletions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalChangedFiles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastCommitDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.SrsDocumentDTO": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "projectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "introduction": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "string",
+            "nullable": true
+          },
+          "filePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "generatedBy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "generatedByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.TaskResponseDTO": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requirementId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "jiraIssueId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assignedTo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "workHours": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "assignedToName": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraIssueKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "jiraStatus": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.TaskStatisticsByStatusDTO": {
+        "type": "object",
+        "properties": {
+          "todoTasks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inProgressTasks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "doneTasks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalTasks": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.UpdateProfileDTO": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "format": "tel",
+            "nullable": true
+          },
+          "githubUsername": {
+            "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9]|[a-zA-Z0-9])?$",
+            "type": "string",
+            "nullable": true
+          },
+          "jiraAccountId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BLL.DTOs.Student.UpdateTaskStatusDTO": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "workHours": {
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DAL.Models.UserRole": {
+        "enum": [
+          "admin",
+          "lecturer",
+          "student"
+        ],
+        "type": "string"
+      },
+      "DAL.Models.UserStatus": {
+        "enum": [
+          "active",
+          "inactive"
+        ],
+        "type": "string"
+      },
+      "Microsoft.AspNetCore.Mvc.ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Enter: Bearer {your JWT token}",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
+}

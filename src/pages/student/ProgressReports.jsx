@@ -570,14 +570,8 @@ export default function ProgressReports() {
   }, []);
 
   const isLeader = useMemo(() => {
-    const currentEmail = user?.email?.toLowerCase();
-    if (!currentEmail || !Array.isArray(group?.members)) return false;
-
-    return group.members.some(
-      (member) =>
-        member?.isLeader && member?.email?.toLowerCase() === currentEmail,
-    );
-  }, [group?.members, user?.email]);
+    return group?.isLeader === true;
+  }, [group?.isLeader]);
 
   const rows = useMemo(
     () =>
