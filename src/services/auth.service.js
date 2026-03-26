@@ -10,10 +10,10 @@ export const AuthService = {
     });
   },
 
-  registerStudent({ email, password, fullName, phone, studentCode } = {}) {
+  registerStudent({ email, password, fullName, phone, studentCode, githubUsername, jiraAccountId } = {}) {
     return BaseService.post({
       url: API.AUTH.REGISTER,
-      payload: { email, password, fullName, phone, studentCode },
+      payload: { email, password, fullName, phone, studentCode, githubUsername, jiraAccountId },
       isLoading: true,
     });
   },

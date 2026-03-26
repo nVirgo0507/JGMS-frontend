@@ -2,6 +2,13 @@ import { BaseService } from "../config/basic.service";
 import { API } from "../consts/path.api";
 
 export const LecturerService = {
+  getProfile() {
+    return BaseService.get({
+      url: API.LECTURER.PROFILE,
+      isLoading: true,
+    });
+  },
+
   getGroups(options = {}) {
     return BaseService.get({
       url: API.LECTURER.GROUPS,

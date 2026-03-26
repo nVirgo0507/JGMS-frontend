@@ -153,6 +153,8 @@ export default function ManageUsers() {
           role:     values.role,
           password: values.password,
           studentCode: values.studentCode || null,
+          githubUsername: values.githubUsername || null,
+          jiraAccountId:  values.jiraAccountId || null,
         });
         toast.success("User created!");
       }
@@ -274,18 +276,16 @@ export default function ManageUsers() {
                 <Input placeholder="SE000000" />
               </Form.Item>
             )}
+            <Form.Item label="GitHub Username" name="githubUsername" rules={isStudent ? [{ required: true, message: "Required for students" }] : []}>
+              <Input placeholder="github-handle" />
+            </Form.Item>
+            <Form.Item label="Jira Account ID" name="jiraAccountId" rules={isStudent ? [{ required: true, message: "Required for students" }] : []}>
+              <Input placeholder="jira-account-id" />
+            </Form.Item>
             {editingUser && (
-              <>
-                <Form.Item label="GitHub Username" name="githubUsername">
-                  <Input placeholder="github-handle" />
-                </Form.Item>
-                <Form.Item label="Jira Account ID" name="jiraAccountId">
-                  <Input placeholder="jira-account-id" />
-                </Form.Item>
-                <Form.Item label="Status" name="status">
-                  <Select options={STATUS_OPTS} />
-                </Form.Item>
-              </>
+              <Form.Item label="Status" name="status">
+                <Select options={STATUS_OPTS} />
+              </Form.Item>
             )}
           </div>
         </Form>

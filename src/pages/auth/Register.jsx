@@ -13,6 +13,8 @@ const RegisterPage = () => {
     fullName: "",
     phone: "",
     studentCode: "",
+    githubUsername: "",
+    jiraAccountId: "",
   });
   const [errors, setErrors] = useState({});
   const isLecturer = form.role === "lecturer";
@@ -21,14 +23,14 @@ const RegisterPage = () => {
     const { name, value } = event.target;
     setForm((prev) => {
       if (name === "role" && value === "lecturer") {
-        return { ...prev, role: value, studentCode: "" };
+        return { ...prev, role: value, studentCode: "", githubUsername: "", jiraAccountId: "" };
       }
 
       return { ...prev, [name]: value };
     });
 
     if (name === "role") {
-      setErrors((prev) => ({ ...prev, studentCode: "" }));
+      setErrors((prev) => ({ ...prev, studentCode: "", githubUsername: "", jiraAccountId: "" }));
     }
 
     if (errors[name]) {
@@ -46,7 +48,11 @@ const RegisterPage = () => {
         password: form.password,
         fullName: form.fullName,
         phone: form.phone,
-        ...(isLecturer ? {} : { studentCode: form.studentCode }),
+        ...(isLecturer ? {} : { 
+          studentCode: form.studentCode,
+          githubUsername: form.githubUsername,
+          jiraAccountId: form.jiraAccountId
+        }),
       };
 
       const response = isLecturer
@@ -228,29 +234,67 @@ const RegisterPage = () => {
                 )}
               </div>
               {!isLecturer && (
-                <div className="space-y-2">
-                  <label
-                    className="text-sm font-medium text-slate-700"
-                    htmlFor="studentCode"
-                  >
-                    Student Code
-                  </label>
-                  <input
-                    className={`w-full rounded-xl border ${errors.studentCode ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
-                    id="studentCode"
-                    name="studentCode"
-                    onChange={handleChange}
-                    placeholder="SE123456"
-                    type="text"
-                    value={form.studentCode}
-                    required={!isLecturer}
-                  />
-                  {errors.studentCode && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {errors.studentCode}
-                    </p>
-                  )}
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <label
+                      className="text-sm font-medium text-slate-700"
+                      htmlFor="studentCode"
+                    >
+                      Student Code
+                    </label>
+                    <input
+                      className={`w-full rounded-xl border ${errors.studentCode ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
+                      id="studentCode"
+                      name="studentCode"
+                      onChange={handleChange}
+                      placeholder="SE123456"
+                      type="text"
+                      value={form.studentCode}
+                      required={!isLecturer}
+                    />
+                    {errors.studentCode && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.studentCode}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700" htmlFor="githubUsername">
+                      GitHub Username
+                    </label>
+                    <input
+                      className={`w-full rounded-xl border ${errors.githubUsername ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
+                      id="githubUsername"
+                      name="githubUsername"
+                      onChange={handleChange}
+                      placeholder="github-handle"
+                      type="text"
+                      value={form.githubUsername}
+                      required={!isLecturer}
+                    />
+                    {errors.githubUsername && (
+                      <p className="text-xs text-red-500 mt-1">{errors.githubUsername}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700" htmlFor="jiraAccountId">
+                      Jira Account ID
+                    </label>
+                    <input
+                      className={`w-full rounded-xl border ${errors.jiraAccountId ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
+                      id="jiraAccountId"
+                      name="jiraAccountId"
+                      onChange={handleChange}
+                      placeholder="jira-account-id"
+                      type="text"
+                      value={form.jiraAccountId}
+                      required={!isLecturer}
+                    />
+                    {errors.jiraAccountId && (
+                      <p className="text-xs text-red-500 mt-1">{errors.jiraAccountId}</p>
+                    )}
+                  </div>
+                </>
               )}
               <button
                 className="w-full rounded-xl bg-teal-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/40 focus:ring-offset-2 focus:ring-offset-white"

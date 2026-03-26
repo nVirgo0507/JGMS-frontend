@@ -30,6 +30,10 @@ export const AuthProvider = ({ children }) => {
           const { StudentService } = await import("../services/student.service");
           const res = await StudentService.getProfile();
           fetchedName = res.data?.fullName;
+        } else if (user.role.toLowerCase() === "lecturer") {
+          const { LecturerService } = await import("../services/lecturer.service");
+          const res = await LecturerService.getProfile();
+          fetchedName = res.data?.fullName;
         }
 
         if (fetchedName) {

@@ -27,6 +27,7 @@ export const API = {
     STATISTICS_COMMITS: "/api/students/statistics/commits",
   },
   LECTURER: {
+    PROFILE: "/api/lecturers/profile",
     GROUPS: "/api/lecturers/groups",
   },
 };
