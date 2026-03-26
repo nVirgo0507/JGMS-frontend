@@ -18,7 +18,7 @@ export const AdminProjectService = {
   },
 
   linkGithub(groupCode, payload) {
-    return BaseService.put({
+    return BaseService.post({
       url: `/api/admin/groups/${groupCode}/project/integrations/github`,
       payload,
     });

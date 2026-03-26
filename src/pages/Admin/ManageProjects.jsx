@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import {
-  Button, Card, Col, DatePicker, Form, Input, Modal, Row, Select,
+  Button, Card, Form, Input, Modal, Select,
   Table, Tag, Tooltip, Typography,
 } from "antd";
 import {
@@ -77,8 +77,8 @@ export default function ManageProjects() {
     projectForm.setFieldsValue({
       projectName: p?.projectName || "",
       description: p?.description || "",
-      startDate:   p?.startDate ? dayjs(p.startDate) : null,
-      endDate:     p?.endDate   ? dayjs(p.endDate)   : null,
+      startDate:   p?.startDate ? p.startDate.slice(0, 10) : "",
+      endDate:     p?.endDate   ? p.endDate.slice(0, 10)   : "",
       status:      p?.status    || "active",
     });
     setProjectModal(true);
@@ -95,11 +95,12 @@ export default function ManageProjects() {
     try {
       setSaving(true);
       const payload = {
+        groupCode:   selectedGroup.groupCode,
         projectName: values.projectName,
         description: values.description || null,
-        startDate:   values.startDate ? values.startDate.format("YYYY-MM-DD") : null,
-        endDate:     values.endDate   ? values.endDate.format("YYYY-MM-DD")   : null,
-        status:      values.status || "active",
+        startDate:   values.startDate || null,
+        endDate:     values.endDate   || null,
+        ...(isEdit ? { status: values.status || "active" } : {}),
       };
       if (isEdit) {
         await AdminProjectService.updateProject(selectedGroup.groupCode, payload);
@@ -221,18 +222,12 @@ export default function ManageProjects() {
           <Form.Item label="Description" name="description">
             <Input.TextArea rows={3} placeholder="Brief description…" />
           </Form.Item>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item label="Start Date" name="startDate">
-                <DatePicker className="w-full" format="YYYY-MM-DD" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="End Date" name="endDate">
-                <DatePicker className="w-full" format="YYYY-MM-DD" />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item label="Start Date" name="startDate">
+            <Input type="date" />
+          </Form.Item>
+          <Form.Item label="End Date" name="endDate">
+            <Input type="date" />
+          </Form.Item>
           {isEdit && (
             <Form.Item label="Status" name="status">
               <Select options={STATUS_OPTS} />
