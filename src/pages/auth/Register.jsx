@@ -13,6 +13,8 @@ const RegisterPage = () => {
     fullName: "",
     phone: "",
     studentCode: "",
+    role: "student",
+
   });
   const [errors, setErrors] = useState({});
   const isLecturer = form.role === "lecturer";
@@ -150,6 +152,20 @@ const RegisterPage = () => {
                 >
                   Full name
                 </label>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">
+                    Role
+                  </label>
+                  <select
+                    name="role"
+                    value={form.role}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3"
+                  >
+                    <option value="student">Student</option>
+                    <option value="lecturer">Lecturer</option>
+                  </select>
+                </div>
                 <input
                   className={`w-full rounded-xl border ${errors.fullName ? "border-red-400" : "border-slate-200"} bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30`}
                   id="fullName"

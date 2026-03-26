@@ -25,8 +25,6 @@ export const AuthService = {
       isLoading: true,
     });
   },
-
-  // Keep backward compatibility for existing calls.
   register(payload = {}) {
     return this.registerStudent(payload);
   },

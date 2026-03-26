@@ -10,6 +10,7 @@ export const API = {
     LOGIN: "/api/auth/login",
     REGISTER: "/api/auth/register",
     REGISTER_LECTURER: "/api/auth/register/lecturer",
+    ME: "/api/auth/me",
   },
   ADMIN: {
     USERS: "/api/admin",
