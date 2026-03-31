@@ -78,7 +78,7 @@ export const getDashboardPathByRole = (role) => {
     case ROLE.LECTURER:
       return ROUTER_URL.LECTURER.DASHBOARD;
     case ROLE.STUDENT:
-      return ROUTER_URL.COMMON.HOME;
+      return ROUTER_URL.STUDENT.DASHBOARD;
     default:
       return ROUTER_URL.COMMON.LOGIN;
   }
