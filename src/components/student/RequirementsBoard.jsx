@@ -232,7 +232,7 @@ export default function RequirementsBoard({ groupCode, isLeader = false }) {
             description: values.description,
             requirementType: values.requirementType,
             priority: values.priority,
-            jiraIssueId: Number(values.jiraIssueId || 0),
+            jiraIssueId: values.jiraIssueId === 0 ? null : Number(values.jiraIssueId),
           },
         );
         toast.success("Requirement updated successfully");
@@ -244,7 +244,7 @@ export default function RequirementsBoard({ groupCode, isLeader = false }) {
           requirementType: values.requirementType,
           issueType: values.issueType,
           priority: values.priority,
-          jiraIssueId: Number(values.jiraIssueId || 0),
+          jiraIssueId: values.jiraIssueId === 0 ? null : Number(values.jiraIssueId),
         });
         toast.success("Requirement created successfully");
       }

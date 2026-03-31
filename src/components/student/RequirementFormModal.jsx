@@ -32,7 +32,7 @@ const getInitialFormValues = (requirement) => ({
   title: requirement?.title,
   description: requirement?.description,
   requirementType: requirement?.requirementType || "Functional",
-  issueType: requirement?.issueType,
+  issueType: requirement?.issueType || "Task",
   priority: requirement?.priority || "Medium",
   jiraIssueId: requirement?.jiraIssueId ?? 0,
 });
@@ -87,6 +87,27 @@ export default function RequirementFormModal({
         const options = Array.isArray(data)
           ? data.filter((item) => item?.jiraIssueId).map(mapIssueOption)
           : [];
+
+        // Predict the next Jira issue key
+        let maxIssueNum = 0;
+        let projectKey = "ISSUE";
+        data.forEach((item) => {
+          if (item?.issueKey) {
+            const match = item.issueKey.match(/^([A-Za-z0-9]+)-(\d+)$/);
+            if (match) {
+              projectKey = match[1];
+              const num = parseInt(match[2], 10);
+              if (num > maxIssueNum) maxIssueNum = num;
+            }
+          }
+        });
+        const nextIssueKey = maxIssueNum > 0 ? `${projectKey}-${maxIssueNum + 1}` : "New Issue";
+
+        // Prepend the Create New option
+        options.unshift({
+          value: 0,
+          label: `+ Create new Jira issue (${nextIssueKey})`,
+        });
 
         const currentIssueId = Number(requirement?.jiraIssueId || 0);
         const hasCurrentOption = options.some(
@@ -236,24 +257,22 @@ export default function RequirementFormModal({
             </Form.Item>
           </Col>
 
-          {isEditing && (
-            <Col xs={24} md={12}>
-              <Form.Item
-                label="Jira Issue ID (Optional)"
-                name="jiraIssueId"
-              >
-                <Select
-                  showSearch
-                  loading={issuesLoading}
-                  options={issueOptions}
-                  placeholder="Select Jira issue"
-                  optionFilterProp="label"
-                  disabled={!issueOptions.length && !issuesLoading}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-          )}
+          <Col xs={24} md={12}>
+            <Form.Item
+              label="Jira Issue"
+              name="jiraIssueId"
+              rules={[{ required: true, message: "Please select or create a Jira issue" }]}
+            >
+              <Select
+                showSearch
+                loading={issuesLoading}
+                options={issueOptions}
+                placeholder="Select Jira issue"
+                optionFilterProp="label"
+                disabled={!issueOptions.length && !issuesLoading}
+              />
+            </Form.Item>
+          </Col>
         </Row>
       </Form>
     </Modal>
