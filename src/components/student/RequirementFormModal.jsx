@@ -46,6 +46,7 @@ export default function RequirementFormModal({
   open,
   groupCode,
   requirement,
+  suggestedCode,
   saving = false,
   onCancel,
   onSubmit,
@@ -60,8 +61,17 @@ export default function RequirementFormModal({
   useEffect(() => {
     if (!open) return;
     form.resetFields();
-    form.setFieldsValue(getInitialFormValues(requirement));
-  }, [form, open, requirement]);
+    
+    const initialValues = {
+       ...getInitialFormValues(requirement)
+    };
+
+    if (!requirement && suggestedCode) {
+      initialValues.requirementCode = suggestedCode;
+    }
+
+    form.setFieldsValue(initialValues);
+  }, [form, open, requirement, suggestedCode]);
 
   useEffect(() => {
     const loadIssues = async () => {
@@ -226,22 +236,24 @@ export default function RequirementFormModal({
             </Form.Item>
           </Col>
 
-          <Col xs={24} md={12}>
-            <Form.Item
-              label="Jira Issue ID"
-              name="jiraIssueId"
-              rules={[{ required: true, message: "Jira Issue ID is required" }]}
-            >
-              <Select
-                showSearch
-                loading={issuesLoading}
-                options={issueOptions}
-                placeholder="Select Jira issue"
-                optionFilterProp="label"
-                disabled={!issueOptions.length && !issuesLoading}
-              />
-            </Form.Item>
-          </Col>
+          {isEditing && (
+            <Col xs={24} md={12}>
+              <Form.Item
+                label="Jira Issue ID (Optional)"
+                name="jiraIssueId"
+              >
+                <Select
+                  showSearch
+                  loading={issuesLoading}
+                  options={issueOptions}
+                  placeholder="Select Jira issue"
+                  optionFilterProp="label"
+                  disabled={!issueOptions.length && !issuesLoading}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+          )}
         </Row>
       </Form>
     </Modal>

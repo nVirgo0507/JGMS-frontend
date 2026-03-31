@@ -109,6 +109,32 @@ export default function RequirementsBoard({ groupCode, isLeader = false }) {
   const [editingRequirement, setEditingRequirement] = useState(null);
   const [deletingRequirement, setDeletingRequirement] = useState(null);
 
+  const suggestedCode = useMemo(() => {
+    if (!requirements || requirements.length === 0) return "REQ-001";
+    let maxNum = 0;
+    let maxPrefix = "REQ-";
+    let numLength = 3;
+
+    requirements.forEach(req => {
+      const code = req.requirementCode || "";
+      const match = code.match(/^(.*?)(\d+)$/);
+      if (match) {
+        const num = parseInt(match[2], 10);
+        if (num > maxNum) {
+          maxNum = num;
+          maxPrefix = match[1];
+          numLength = Math.max(match[2].length, 3);
+        }
+      }
+    });
+
+    if (maxNum === 0) {
+      return `REQ-${String(requirements.length + 1).padStart(3, '0')}`;
+    }
+    
+    return `${maxPrefix}${String(maxNum + 1).padStart(numLength, '0')}`;
+  }, [requirements]);
+
   const loadRequirements = async () => {
     if (!groupCode) return;
 
@@ -455,6 +481,7 @@ export default function RequirementsBoard({ groupCode, isLeader = false }) {
         open={modalOpen}
         groupCode={groupCode}
         requirement={editingRequirement}
+        suggestedCode={suggestedCode}
         saving={saving}
         onCancel={closeModal}
         onSubmit={handleSubmit}

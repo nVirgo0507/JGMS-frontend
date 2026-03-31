@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  Alert, Badge, Button, Card, Col, Descriptions, Divider, Form,
+  Alert, Badge, Button, Card, Col, Descriptions, Divider, Dropdown, Form,
   Input, Modal, Popconfirm, Row, Spin, Table, Tag, Tooltip, Typography,
 } from "antd";
 import {
@@ -180,10 +180,13 @@ function JiraModal({ open, groupCode, existing, onClose, onDone }) {
 function GroupIntegrationRow({ group, onRefresh }) {
   const [jiraConfig, setJiraConfig]   = useState(null);
   const [jiraLoading, setJiraLoading] = useState(false);
+  const [githubConfig, setGithubConfig]   = useState(null);
+  const [githubLoading, setGithubLoading] = useState(false);
   const [testResult, setTestResult]   = useState(null);
   const [syncing, setSyncing]         = useState(false);
   const [githubModal, setGithubModal] = useState(false);
   const [jiraModal, setJiraModal]     = useState(false);
+  const [syncingGithub, setSyncingGithub] = useState(false);
 
   const loadJira = useCallback(async () => {
     try {
@@ -197,7 +200,42 @@ function GroupIntegrationRow({ group, onRefresh }) {
     }
   }, [group.groupCode]);
 
-  useEffect(() => { loadJira(); }, [loadJira]);
+  const loadGithub = useCallback(async () => {
+    const projectId = group.project?.id || group.project?.projectId || group.project?.projectCode;
+    if (!projectId) {
+      setGithubConfig(null);
+      return;
+    }
+    try {
+      setGithubLoading(true);
+      const res = await AdminGroupIntegrationService.getGithubIntegration(projectId);
+      setGithubConfig(res.data || null);
+    } catch {
+      setGithubConfig(null);
+    } finally {
+      setGithubLoading(false);
+    }
+  }, [group.project]);
+
+  useEffect(() => { loadJira(); loadGithub(); }, [loadJira, loadGithub]);
+
+  const syncGithub = async (forceFullResync) => {
+    const projectId = group.project?.id || group.project?.projectId || group.project?.projectCode;
+    if (!projectId) {
+      toast.error("No project assigned");
+      return;
+    }
+    try {
+      setSyncingGithub(true);
+      await AdminGroupIntegrationService.syncGithub(projectId, forceFullResync);
+      toast.success(forceFullResync ? "Force full sync completed!" : "GitHub sync completed!");
+      loadGithub();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "GitHub Sync failed");
+    } finally {
+      setSyncingGithub(false);
+    }
+  };
 
   const testJira = async () => {
     try {
@@ -242,20 +280,48 @@ function GroupIntegrationRow({ group, onRefresh }) {
             <div className="flex items-center gap-2">
               <GithubOutlined className="text-lg" />
               <Text strong>GitHub Repository</Text>
+              {githubConfig 
+                ? <Badge status="success" text="Connected" />
+                : <Badge status="default" text="Not configured" />}
             </div>
-            <Tooltip title="Configure GitHub integration">
-              <Button size="small" icon={<GithubOutlined />} onClick={() => setGithubModal(true)}>
-                {group.project?.githubRepoUrl ? "Reconfigure" : "Configure"}
-              </Button>
-            </Tooltip>
+            <div className="flex gap-2">
+              {githubConfig && (
+                <Dropdown menu={{
+                  items: [
+                    { key: 'fast', label: 'Standard Sync' },
+                    { key: 'full', label: 'Force Full Resync', danger: true },
+                  ],
+                  onClick: ({ key }) => syncGithub(key === 'full')
+                }}>
+                  <Tooltip title="Sync GitHub commits">
+                    <Button size="small" icon={<SyncOutlined spin={syncingGithub} />} loading={syncingGithub} />
+                  </Tooltip>
+                </Dropdown>
+              )}
+              <Tooltip title="Configure GitHub integration">
+                <Button size="small" icon={<GithubOutlined />} onClick={() => setGithubModal(true)}>
+                  {githubConfig ? "Reconfigure" : "Configure"}
+                </Button>
+              </Tooltip>
+            </div>
           </div>
-          {group.project ? (
+          {githubLoading ? (
+            <Spin size="small" />
+          ) : githubConfig ? (
             <Descriptions size="small" column={1}>
-              <Descriptions.Item label="Project">{group.project.projectName}</Descriptions.Item>
-              <Descriptions.Item label="Status">
-                <Tag color={group.project.status === "active" ? "green" : "default"}>{group.project.status}</Tag>
+              <Descriptions.Item label="Repository">{githubConfig.repoOwner}/{githubConfig.repoName}</Descriptions.Item>
+              <Descriptions.Item label="URL">{githubConfig.repoUrl || '—'}</Descriptions.Item>
+              <Descriptions.Item label="Sync Status">
+                {githubConfig.syncStatus === 'success' ? <Text type="success">{githubConfig.syncStatus}</Text> : githubConfig.syncStatus}
               </Descriptions.Item>
+              {githubConfig.lastSync && (
+                <Descriptions.Item label="Last Sync">
+                  {new Date(githubConfig.lastSync).toLocaleString()}
+                </Descriptions.Item>
+              )}
             </Descriptions>
+          ) : group.project ? (
+            <Text type="secondary" className="text-sm">Not configured. Click Configure to set up GitHub.</Text>
           ) : (
             <Text type="secondary" className="text-sm">No project assigned yet. Create a project in the Projects page first.</Text>
           )}
@@ -328,7 +394,7 @@ function GroupIntegrationRow({ group, onRefresh }) {
         open={githubModal}
         groupCode={group.groupCode}
         onClose={() => setGithubModal(false)}
-        onDone={onRefresh}
+        onDone={() => { onRefresh(); loadGithub(); }}
       />
       <JiraModal
         open={jiraModal}
