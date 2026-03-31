@@ -54,6 +54,7 @@ export default function RequirementFormModal({
   const screens = Grid.useBreakpoint();
   const [form] = Form.useForm();
   const [issueOptions, setIssueOptions] = useState([]);
+  const [rawIssues, setRawIssues] = useState([]);
   const [issuesLoading, setIssuesLoading] = useState(false);
   const isEditing = Boolean(requirement);
   const isDesktop = Boolean(screens.md);
@@ -84,6 +85,8 @@ export default function RequirementFormModal({
         setIssuesLoading(true);
         const response = await StudentService.getGroupIssues(groupCode);
         const data = response?.data ?? [];
+        setRawIssues(Array.isArray(data) ? data : []);
+        
         const options = Array.isArray(data)
           ? data.filter((item) => item?.jiraIssueId).map(mapIssueOption)
           : [];
@@ -142,6 +145,34 @@ export default function RequirementFormModal({
     requirement?.jiraIssueId,
     requirement?.title,
   ]);
+
+  const handleJiraIssueChange = (selectedId) => {
+    if (!selectedId || selectedId === 0) return;
+    
+    const stringId = String(selectedId);
+    const issue = rawIssues.find((i) => String(i.jiraIssueId) === stringId);
+    if (!issue) {
+      toast.warn("Could not find full details for this issue.");
+      return;
+    }
+
+    const updates = {};
+    if (issue.summary) updates.title = issue.summary;
+    if (issue.description) updates.description = issue.description;
+    
+    // Attempt rudimentary mapping of issue type if available
+    const rawType = String(issue.issueTypeName || issue.issueType || "").toLowerCase();
+    if (rawType.includes("story")) updates.issueType = "Story";
+    else if (rawType.includes("epic")) updates.issueType = "Epic";
+    else if (rawType.includes("task")) updates.issueType = "Task";
+
+    if (Object.keys(updates).length > 0) {
+      form.setFieldsValue(updates);
+      toast.success("Requirement auto-filled from Jira issue!");
+    } else {
+      toast.info("No text available to auto-fill.");
+    }
+  };
 
   const handleOk = async () => {
     const values = await form.validateFields();
@@ -270,6 +301,7 @@ export default function RequirementFormModal({
                 placeholder="Select Jira issue"
                 optionFilterProp="label"
                 disabled={!issueOptions.length && !issuesLoading}
+                onChange={handleJiraIssueChange}
               />
             </Form.Item>
           </Col>

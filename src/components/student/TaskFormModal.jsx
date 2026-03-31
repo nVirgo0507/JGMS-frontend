@@ -54,6 +54,7 @@ export default function TaskFormModal({
   open,
   task,
   saving = false,
+  rawRequirements = [],
   requirementOptions = [],
   issueOptions = [],
   memberOptions = [],
@@ -70,6 +71,25 @@ export default function TaskFormModal({
     form.resetFields();
     form.setFieldsValue(getInitialFormValues(task));
   }, [form, open, task]);
+
+  const handleRequirementChange = (selectedId) => {
+    if (!selectedId) return;
+
+    const req = rawRequirements.find(
+      (r) => Number(r.requirementId) === selectedId
+    );
+    if (!req) return;
+
+    const updates = {};
+
+    if (req.title) updates.title = req.title;
+    if (req.description) updates.description = req.description;
+
+    if (Object.keys(updates).length > 0) {
+      form.setFieldsValue(updates);
+      toast.info("Task auto-filled from requirement!");
+    }
+  };
 
   const handleOk = async () => {
     const values = await form.validateFields();
@@ -123,6 +143,7 @@ export default function TaskFormModal({
                 options={requirementOptions}
                 placeholder="Select requirement"
                 optionFilterProp="label"
+                onChange={handleRequirementChange}
               />
             </Form.Item>
           </Col>

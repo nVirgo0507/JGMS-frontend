@@ -180,13 +180,14 @@ const loadTasksData = async (groupCode, isLeader) => {
 const loadRequirementsOptions = async (groupCode) => {
   const response = await StudentService.getGroupRequirements(groupCode);
   const data = response?.data ?? [];
+  const rawData = Array.isArray(data) ? data : [];
 
-  return Array.isArray(data)
-    ? data.map((item) => ({
-        value: Number(item.requirementId),
-        label: `${item.requirementCode || `REQ-${item.requirementId}`} - ${item.title || "Untitled requirement"}`,
-      }))
-    : [];
+  const options = rawData.map((item) => ({
+    value: Number(item.requirementId),
+    label: `${item.requirementCode || `REQ-${item.requirementId}`} - ${item.title || "Untitled requirement"}`,
+  }));
+
+  return { options, rawData };
 };
 
 const loadIssueOptions = async (groupCode) => {
@@ -234,6 +235,7 @@ export default function TasksBoard({
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
   const [requirementOptions, setRequirementOptions] = useState([]);
+  const [rawRequirements, setRawRequirements] = useState([]);
   const [issueOptions, setIssueOptions] = useState([]);
 
   const memberOptions = useMemo(
@@ -286,17 +288,19 @@ export default function TasksBoard({
       if (!groupCode || !isLeader) return;
 
       try {
-        const [nextRequirementOptions, nextIssueOptions] = await Promise.all([
+        const [reqRes, nextIssueOptions] = await Promise.all([
           loadRequirementsOptions(groupCode),
           loadIssueOptions(groupCode),
         ]);
-        setRequirementOptions(nextRequirementOptions);
+        setRequirementOptions(reqRes.options);
+        setRawRequirements(reqRes.rawData);
         setIssueOptions(nextIssueOptions);
       } catch (error) {
         toast.error(
           error?.response?.data?.message || "Failed to load task resources",
         );
         setRequirementOptions([]);
+        setRawRequirements([]);
         setIssueOptions([]);
       }
     };
@@ -836,6 +840,7 @@ export default function TasksBoard({
         open={taskModalOpen}
         task={editingTask}
         saving={saving}
+        rawRequirements={rawRequirements}
         requirementOptions={requirementOptions}
         issueOptions={issueOptions.map((item) => ({
           value: item.jiraIssueId,
