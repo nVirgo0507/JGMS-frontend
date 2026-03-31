@@ -7,6 +7,7 @@ import {
   SearchOutlined,
   SendOutlined,
   UnorderedListOutlined,
+  CodeOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -24,6 +25,7 @@ import { StudentService } from "../../services/student.service";
 import TaskDeleteModal from "./TaskDeleteModal";
 import TaskFormModal from "./TaskFormModal";
 import TaskFromJiraModal from "./TaskFromJiraModal";
+import TaskCommitModal from "./TaskCommitModal";
 
 const STATUS_OPTIONS = [
   { value: "All", label: "All" },
@@ -232,8 +234,10 @@ export default function TasksBoard({
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [fromJiraModalOpen, setFromJiraModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [commitModalOpen, setCommitModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
+  const [commitTask, setCommitTask] = useState(null);
   const [requirementOptions, setRequirementOptions] = useState([]);
   const [rawRequirements, setRawRequirements] = useState([]);
   const [issueOptions, setIssueOptions] = useState([]);
@@ -369,6 +373,16 @@ export default function TasksBoard({
   const closeDeleteModal = () => {
     setDeleteModalOpen(false);
     setDeletingTask(null);
+  };
+
+  const openCommitModal = (task) => {
+    setCommitTask(task);
+    setCommitModalOpen(true);
+  };
+
+  const closeCommitModal = () => {
+    setCommitModalOpen(false);
+    setCommitTask(null);
   };
 
   const handleSubmitTask = async (values) => {
@@ -548,43 +562,55 @@ export default function TasksBoard({
     },
   ];
 
-  if (isLeader) {
-    columns.push({
-      title: "ACTIONS",
-      key: "actions",
-      width: 100,
-      fixed: "right",
-      render: (_, record) => (
-        <Space size="small">
-          {renderHoverPopover(
-            "Edit",
-            "Update this task",
-            <Button
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => openEditModal(record)}
-              className="text-whit"
-            />,
-            "left",
-          )}
-          {renderHoverPopover(
-            "Delete",
-            "Remove this task",
-            <Button
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => {
-                setDeletingTask(record);
-                setDeleteModalOpen(true);
-              }}
-            />,
-            "left",
-          )}
-        </Space>
-      ),
-    });
-  }
+  columns.push({
+    title: "ACTIONS",
+    key: "actions",
+    width: 120,
+    fixed: "right",
+    render: (_, record) => (
+      <Space size="small">
+        {renderHoverPopover(
+          "Commit Line",
+          "Generate git commit line",
+          <Button
+            size="small"
+            icon={<CodeOutlined />}
+            onClick={() => openCommitModal(record)}
+          />,
+          "left",
+        )}
+        {isLeader && (
+          <>
+            {renderHoverPopover(
+              "Edit",
+              "Update this task",
+              <Button
+                size="small"
+                icon={<EditOutlined />}
+                onClick={() => openEditModal(record)}
+                className="text-white"
+              />,
+              "left",
+            )}
+            {renderHoverPopover(
+              "Delete",
+              "Remove this task",
+              <Button
+                size="small"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => {
+                  setDeletingTask(record);
+                  setDeleteModalOpen(true);
+                }}
+              />,
+              "left",
+            )}
+          </>
+        )}
+      </Space>
+    ),
+  });
 
   return (
     <>
@@ -796,35 +822,47 @@ export default function TasksBoard({
                             </p>
                           ) : null}
 
-                          {isLeader ? (
-                            <div className="mt-4 flex items-center justify-end gap-2 border-t border-slate-100 pt-4">
-                              {renderHoverPopover(
-                                "Edit",
-                                "Update this task",
-                                <Button
-                                  size="small"
-                                  icon={<EditOutlined />}
-                                  onClick={() => openEditModal(task)}
-                                  className="text-white"
-                                />,
-                                "top",
-                              )}
-                              {renderHoverPopover(
-                                "Delete",
-                                "Remove this task",
-                                <Button
-                                  size="small"
-                                  danger
-                                  icon={<DeleteOutlined />}
-                                  onClick={() => {
-                                    setDeletingTask(task);
-                                    setDeleteModalOpen(true);
-                                  }}
-                                />,
-                                "top",
-                              )}
-                            </div>
-                          ) : null}
+                          <div className="mt-4 flex items-center justify-end gap-2 border-t border-slate-100 pt-4">
+                            {renderHoverPopover(
+                              "Commit Line",
+                              "Generate git commit line",
+                              <Button
+                                size="small"
+                                icon={<CodeOutlined />}
+                                onClick={() => openCommitModal(task)}
+                              />,
+                              "top",
+                            )}
+                            {isLeader && (
+                              <>
+                                {renderHoverPopover(
+                                  "Edit",
+                                  "Update this task",
+                                  <Button
+                                    size="small"
+                                    icon={<EditOutlined />}
+                                    onClick={() => openEditModal(task)}
+                                    className="text-white"
+                                  />,
+                                  "top",
+                                )}
+                                {renderHoverPopover(
+                                  "Delete",
+                                  "Remove this task",
+                                  <Button
+                                    size="small"
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => {
+                                      setDeletingTask(task);
+                                      setDeleteModalOpen(true);
+                                    }}
+                                  />,
+                                  "top",
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
                       ))
                     )}
@@ -869,6 +907,12 @@ export default function TasksBoard({
         loading={deleteLoading}
         onCancel={closeDeleteModal}
         onConfirm={handleDelete}
+      />
+
+      <TaskCommitModal
+        open={commitModalOpen}
+        task={commitTask}
+        onCancel={closeCommitModal}
       />
     </>
   );

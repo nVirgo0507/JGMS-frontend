@@ -66,6 +66,14 @@ export const StudentService = {
     });
   },
 
+  generateCommitLine(payload) {
+    return BaseService.post({
+      url: API.STUDENT.COMMIT_LINE,
+      payload,
+      isLoading: true,
+    });
+  },
+
   updateMyTaskStatus(taskId, payload) {
     return BaseService.put({
       url: `${API.STUDENT.TASKS}/${taskId}/status`,
