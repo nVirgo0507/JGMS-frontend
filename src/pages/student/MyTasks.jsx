@@ -19,9 +19,11 @@ import {
   CheckCircleOutlined,
   EyeOutlined,
   SearchOutlined,
+  CodeOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import { StudentService } from "../../services/student.service";
+import TaskCommitModal from "../../components/student/TaskCommitModal";
 
 const STATUS_OPTIONS = [
   { value: "All", label: "All" },
@@ -147,6 +149,8 @@ export default function MyTasks() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [actionTaskId, setActionTaskId] = useState(null);
+  const [commitModalOpen, setCommitModalOpen] = useState(false);
+  const [commitTask, setCommitTask] = useState(null);
   const itemsPerPage = 5;
 
   const loadTasks = async () => {
@@ -227,6 +231,16 @@ export default function MyTasks() {
     }
   };
 
+  const openCommitModal = (task) => {
+    setCommitTask(task);
+    setCommitModalOpen(true);
+  };
+
+  const closeCommitModal = () => {
+    setCommitModalOpen(false);
+    setCommitTask(null);
+  };
+
   const filteredTasks = useMemo(
     () =>
       tasks.filter((task) => {
@@ -296,6 +310,16 @@ export default function MyTasks() {
             disabled={task.status === "DONE"}
             loading={actionTaskId === task.taskId}
             onClick={() => handleCompleteTask(task.taskId)}
+            style={compact ? { width: "100%" } : undefined}
+          />,
+          popoverPlacement,
+        )}
+        {renderHoverPopover(
+          "Commit Line",
+          "Generate git commit line",
+          <Button
+            icon={<CodeOutlined />}
+            onClick={() => openCommitModal(task)}
             style={compact ? { width: "100%" } : undefined}
           />,
           popoverPlacement,
@@ -695,11 +719,24 @@ export default function MyTasks() {
                 >
                   Mark Complete
                 </Button>
+                <Button
+                  icon={<CodeOutlined />}
+                  onClick={() => openCommitModal(selectedTask)}
+                  style={isMobile ? { width: "100%" } : undefined}
+                >
+                  Commit Line
+                </Button>
               </div>
             </div>
           </Space>
         ) : null}
       </Modal>
+
+      <TaskCommitModal
+        open={commitModalOpen}
+        task={commitTask}
+        onCancel={closeCommitModal}
+      />
     </div>
   );
 }
