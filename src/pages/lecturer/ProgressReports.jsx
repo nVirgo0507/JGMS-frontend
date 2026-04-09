@@ -14,6 +14,7 @@ import {
 } from "antd";
 import { DownloadOutlined, EyeOutlined } from "@ant-design/icons";
 import { LecturerService } from "../../services/lecturer.service";
+import ReportPreviewModal from "../../components/common/ReportPreviewModal";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -30,6 +31,11 @@ export default function LecturerProgressReports() {
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [loadingReports, setLoadingReports] = useState(false);
   const [error, setError] = useState(null);
+
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [currentReportId, setCurrentReportId] = useState(null);
 
   useEffect(() => {
     fetchGroups();
@@ -76,20 +82,75 @@ export default function LecturerProgressReports() {
     }
   };
 
-  const handleExport = async (reportId) => {
+  const handlePreview = async (reportId) => {
+    setCurrentReportId(reportId);
+    setPreviewVisible(true);
+    setPreviewLoading(true);
+    setPreviewUrl(null);
     try {
-      const res = await LecturerService.exportProgressReport(selectedGroup, reportId);
-      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const res = await LecturerService.exportProgressReport(selectedGroup, reportId, "pdf");
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+      setPreviewUrl(url);
+    } catch (err) {
+      console.error("Failed to load report preview", err);
+      message.error("Failed to load report preview.");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const handleClosePreview = () => {
+    setPreviewVisible(false);
+    if (previewUrl) {
+      window.URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    setCurrentReportId(null);
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      // If we already have the URL, we can just trigger download
+      if (previewUrl) {
+        const link = document.createElement("a");
+        link.href = previewUrl;
+        link.setAttribute("download", `Progress_Report_${selectedGroup}_${currentReportId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        message.success("Report downloaded successfully!");
+        return;
+      }
+      
+      const res = await LecturerService.exportProgressReport(selectedGroup, currentReportId, "pdf");
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `Progress_Report_${selectedGroup}_${reportId}.pdf`); // Assuming PDF download, adjust extension if needed
+      link.setAttribute("download", `Progress_Report_${selectedGroup}_${currentReportId}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      message.success("Report exported successfully!");
+      message.success("Report downloaded successfully!");
     } catch (err) {
-      console.error("Failed to export report", err);
-      message.error("Failed to export report.");
+      console.error("Failed to download report", err);
+      message.error("Failed to download report.");
+    }
+  };
+  
+  const handleDownloadWord = async () => {
+    try {
+      const res = await LecturerService.exportProgressReport(selectedGroup, currentReportId, "word");
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/msword" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Progress_Report_${selectedGroup}_${currentReportId}.doc`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      message.success("Word report downloaded successfully!");
+    } catch (err) {
+      console.error("Failed to download Word report", err);
+      message.error("Failed to download Word report.");
     }
   };
 
@@ -122,12 +183,12 @@ export default function LecturerProgressReports() {
       render: (_, record) => (
         <Space>
           <Button 
-            type="primary" 
-            icon={<DownloadOutlined />} 
-            onClick={() => handleExport(record.reportId)}
+            className="border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-600"
+            icon={<EyeOutlined />} 
+            onClick={() => handlePreview(record.reportId)}
             size="small"
           >
-            Export
+            Preview
           </Button>
         </Space>
       ),
@@ -186,6 +247,15 @@ export default function LecturerProgressReports() {
           </Spin>
         </Card>
       )}
+
+      <ReportPreviewModal
+        visible={previewVisible}
+        onClose={handleClosePreview}
+        blobUrl={previewUrl}
+        loading={previewLoading}
+        onDownload={handleDownloadPdf}
+        onDownloadWord={handleDownloadWord}
+      />
     </div>
   );
 }

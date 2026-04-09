@@ -80,12 +80,12 @@ export default function LecturerGithubReport() {
   const memberStatsColumns = [
     {
       title: "Student",
-      dataIndex: "studentName",
-      key: "studentName",
+      dataIndex: "userName",
+      key: "userName",
       render: (text, record) => (
         <Space>
           <span className="font-semibold">{text}</span>
-          <Text type="secondary text-xs">{record.studentIdentifier}</Text>
+          <Text type="secondary text-xs">#{record.userId}</Text>
         </Space>
       ),
     },
@@ -109,6 +109,32 @@ export default function LecturerGithubReport() {
       key: "totalDeletions",
       sorter: (a, b) => a.totalDeletions - b.totalDeletions,
       render: (val) => <Text type="danger">-{val}</Text>,
+    },
+    {
+      title: "Files Changed",
+      dataIndex: "totalChangedFiles",
+      key: "totalChangedFiles",
+      sorter: (a, b) => (a.totalChangedFiles || 0) - (b.totalChangedFiles || 0),
+    },
+    {
+      title: "Avg Commit Size",
+      dataIndex: "avgCommitSize",
+      key: "avgCommitSize",
+      sorter: (a, b) => (a.avgCommitSize || 0) - (b.avgCommitSize || 0),
+      render: (val) => val ? `${val} lines` : '-',
+    },
+    {
+      title: "Commit Freq",
+      dataIndex: "commitFrequency",
+      key: "commitFrequency",
+      sorter: (a, b) => (a.commitFrequency || 0) - (b.commitFrequency || 0),
+      render: (val) => val ? `${val.toFixed(2)}/day` : '-',
+    },
+    {
+      title: "Last Commit",
+      dataIndex: "lastCommitDate",
+      key: "lastCommitDate",
+      render: (val) => val ? new Date(val).toLocaleDateString() : 'Never',
     },
   ];
 
@@ -191,9 +217,9 @@ export default function LecturerGithubReport() {
                 styles={{ header: { padding: '16px 24px' }, body: { padding: 0 } }}
               >
                 <Table
-                  dataSource={stats.memberStatistics || []}
+                  dataSource={stats.members || []}
                   columns={memberStatsColumns}
-                  rowKey="studentIdentifier"
+                  rowKey="userId"
                   pagination={false}
                   scroll={{ x: true }}
                 />

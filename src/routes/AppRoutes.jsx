@@ -10,7 +10,6 @@ import ManageLectures from "../pages/Admin/ManageLecture";
 import ManageUsers from "../pages/Admin/ManageUsers";
 import ManageProjects from "../pages/Admin/ManageProjects";
 import AdminIntegrations from "../pages/Admin/Integrations";
-import GroupIntegrations from "../pages/Admin/GroupIntegrations";
 import StudentDashboard from "../pages/student/Dashboard";
 import StudentMyGroup from "../pages/student/MyGroup";
 import StudentProfile from "../pages/student/Profile";
@@ -18,6 +17,7 @@ import MyTasks from "../pages/student/MyTasks";
 import KanbanPage from "../pages/student/KanbanPage";
 import StudentProgressReports from "../pages/student/ProgressReports";
 import StudentDocuments from "../pages/student/Documents";
+import StudentGithubStats from "../pages/student/GithubStats";
 import ProgressReports from "../pages/lecturer/ProgressReports";
 import LecturerDashboard from "../pages/lecturer/Dashboard";
 import GroupDetails from "../pages/lecturer/GroupDetails";
@@ -52,7 +52,6 @@ const AppRoutes = () =>
             { path: "users", element: <ManageUsers /> },
             { path: "projects", element: <ManageProjects /> },
             { path: "integrations", element: <AdminIntegrations /> },
-            { path: "group-integrations", element: <GroupIntegrations /> },
           ],
         },
       ],
@@ -104,6 +103,10 @@ const AppRoutes = () =>
             {
               path: "documents",
               element: <StudentDocuments />,
+            },
+            {
+              path: "github",
+              element: <StudentGithubStats />,
             },
           ],
         },

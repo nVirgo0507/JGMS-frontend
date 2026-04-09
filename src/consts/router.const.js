@@ -12,7 +12,6 @@ export const ROUTER_URL = {
     MANAGE_USERS:       "/admin/users",
     MANAGE_PROJECTS:    "/admin/projects",
     INTEGRATIONS:       "/admin/integrations",
-    GROUP_INTEGRATIONS: "/admin/group-integrations",
   },
   LECTURER: {
     DASHBOARD: "/lecturer",
@@ -27,5 +26,6 @@ export const ROUTER_URL = {
     PROFILE: "/student/profile",
     REPORTS: "/student/reports",
     DOCUMENTS: "/student/documents",
+    GITHUB: "/student/github",
   },
 };

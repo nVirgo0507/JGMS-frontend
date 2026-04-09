@@ -51,11 +51,12 @@ export const LecturerService = {
     });
   },
 
-  exportProgressReport(groupCode, reportId) {
+  exportProgressReport(groupCode, reportId, format = "pdf") {
     return BaseService.get({
       url: `${API.LECTURER.GROUPS}/${groupCode}/progress-reports/${reportId}/export`,
+      params: { format },
       isLoading: true,
-      responseType: "blob", // Assuming export is a file
+      responseType: "blob",
     });
   },
 

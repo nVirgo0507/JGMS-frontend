@@ -104,6 +104,11 @@ export default function Sidebar({ isCollapsed = false }) {
           label: "Documents",
           icon: <FolderOpenOutlined />,
         },
+        {
+          to: ROUTER_URL.STUDENT.GITHUB,
+          label: "GitHub Stats",
+          icon: <GithubOutlined />,
+        },
       );
     }
 
@@ -155,11 +160,6 @@ export default function Sidebar({ isCollapsed = false }) {
             to: ROUTER_URL.ADMIN.INTEGRATIONS,
             label: "User Integrations",
             icon: <ApiOutlined />,
-          },
-          {
-            to: ROUTER_URL.ADMIN.GROUP_INTEGRATIONS,
-            label: "Group Integrations",
-            icon: <GithubOutlined />,
           },
         ];
       case "lecturer":

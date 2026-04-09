@@ -214,6 +214,23 @@ export const StudentService = {
     });
   },
 
+  exportProgressReport(groupCode, reportId, format = "pdf") {
+    return BaseService.get({
+      url: `${API.STUDENT.GROUP_PROGRESS_REPORTS}/${groupCode}/progress-reports/${reportId}/export`,
+      params: { format },
+      isLoading: true,
+      responseType: "blob",
+    });
+  },
+
+  getGroupCommitStatistics(groupCode, params = {}) {
+    return BaseService.get({
+      url: `${API.STUDENT.GROUP_COMMIT_STATISTICS}/${groupCode}/commit-statistics`,
+      params,
+      isLoading: true,
+    });
+  },
+
   getGroupSrsDocuments(groupCode) {
     return BaseService.get({
       url: `${API.STUDENT.GROUP_REQUIREMENTS}/${groupCode}/srs-documents`,

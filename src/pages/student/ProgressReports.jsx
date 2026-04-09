@@ -5,8 +5,10 @@ import {
   FileTextOutlined,
   ReadOutlined,
   TeamOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import {
+  message,
   Button,
   Card,
   Col,
@@ -28,6 +30,7 @@ import {
 import { toast } from "react-toastify";
 import { useAuth } from "../../contexts/AuthContext";
 import { StudentService } from "../../services/student.service";
+import ReportPreviewModal from "../../components/common/ReportPreviewModal";
 
 const { Paragraph, Text, Title } = Typography;
 const { TextArea } = Input;
@@ -549,6 +552,11 @@ export default function ProgressReports() {
   const [templateData, setTemplateData] = useState(null);
   const [loadError, setLoadError] = useState(false);
 
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [currentReportId, setCurrentReportId] = useState(null);
+
   useEffect(() => {
     const fetchGroup = async () => {
       try {
@@ -609,6 +617,77 @@ export default function ProgressReports() {
       setReports([]);
     } finally {
       setReportsLoading(false);
+    }
+  };
+
+  const handlePreview = async (reportId) => {
+    setCurrentReportId(reportId);
+    setPreviewVisible(true);
+    setPreviewLoading(true);
+    setPreviewUrl(null);
+    try {
+      const res = await StudentService.exportProgressReport(group.groupCode, reportId, "pdf");
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+      setPreviewUrl(url);
+    } catch (err) {
+      console.error("Failed to load report preview", err);
+      message.error("Failed to load report preview.");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const handleClosePreview = () => {
+    setPreviewVisible(false);
+    if (previewUrl) {
+      window.URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    setCurrentReportId(null);
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      if (previewUrl) {
+        const link = document.createElement("a");
+        link.href = previewUrl;
+        link.setAttribute("download", `Progress_Report_${group.groupCode}_${currentReportId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        message.success("Report downloaded successfully!");
+        return;
+      }
+
+      const res = await StudentService.exportProgressReport(group.groupCode, currentReportId, "pdf");
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Progress_Report_${group.groupCode}_${currentReportId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      message.success("Report downloaded successfully!");
+    } catch (err) {
+      console.error("Failed to download report", err);
+      message.error("Failed to download report.");
+    }
+  };
+
+  const handleDownloadWord = async () => {
+    try {
+      const res = await StudentService.exportProgressReport(group.groupCode, currentReportId, "word");
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/msword" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Progress_Report_${group.groupCode}_${currentReportId}.doc`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      message.success("Word report downloaded successfully!");
+    } catch (err) {
+      console.error("Failed to download Word report", err);
+      message.error("Failed to download Word report.");
     }
   };
 
@@ -755,6 +834,22 @@ export default function ProgressReports() {
         ) : (
           "-"
         ),
+    },
+    {
+      title: "ACTIONS",
+      key: "actions",
+      width: 120,
+      fixed: "right",
+      render: (_, record) => (
+        <Button
+          className="border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-600"
+          icon={<EyeOutlined />}
+          onClick={() => handlePreview(record.reportId)}
+          size="small"
+        >
+          Preview
+        </Button>
+      ),
     },
   ];
 
@@ -916,6 +1011,15 @@ export default function ProgressReports() {
         loading={templateLoading}
         template={templateData}
         onCancel={() => setTemplateOpen(false)}
+      />
+
+      <ReportPreviewModal
+        visible={previewVisible}
+        onClose={handleClosePreview}
+        blobUrl={previewUrl}
+        loading={previewLoading}
+        onDownload={handleDownloadPdf}
+        onDownloadWord={handleDownloadWord}
       />
     </>
   );
