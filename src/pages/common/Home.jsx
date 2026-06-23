@@ -10,11 +10,11 @@ const HomePage = () => {
             {/* Left Content */}
             <div>
               <div className="inline-block rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-700 mb-6">
-                Academic Year 2025-2026
+                Manage Your Academic Project
               </div>
 
               <h1 className="text-5xl font-bold leading-tight text-slate-900 mb-6">
-                Master Your SWP391 Project with{" "}
+                Manage Your Academic Project with{" "}
                 <span className="text-emerald-500">
                   Professional Workflows.
                 </span>
@@ -190,7 +190,7 @@ const HomePage = () => {
       <section className="py-20 bg-gradient-to-br from-slate-900 to-slate-800">
         <div className="mx-auto max-w-4xl px-6 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to streamline your SWP391 course?
+            Ready to streamline your academic project?
           </h2>
           <p className="text-lg text-slate-300 mb-8">
             Join over 100 teams already using our platform to build better
@@ -217,7 +217,7 @@ const HomePage = () => {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-6 w-6 rounded bg-gradient-to-br from-emerald-400 to-emerald-600"></div>
-                <span className="font-bold text-slate-900">SWP391 JGMS</span>
+                <span className="font-bold text-slate-900">JGMS</span>
               </div>
               <p className="text-sm text-slate-600">
                 Empowering the next generation of software engineers with
@@ -287,7 +287,7 @@ const HomePage = () => {
 
           <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-slate-600">
-              © 2024 SWP391 JGMS. All rights reserved.
+              © 2026 JGMS. All rights reserved.
             </p>
             <div className="text-sm text-slate-600">
               Designed for{" "}

@@ -253,6 +253,14 @@ export const StudentService = {
     });
   },
 
+  generateSrsDocumentAi(groupCode, payload) {
+    return BaseService.post({
+      url: `${API.STUDENT.GROUP_REQUIREMENTS}/${groupCode}/srs-documents/generate-ai`,
+      payload,
+      isLoading: true,
+    });
+  },
+
   updateSrsDocument(groupCode, documentId, payload) {
     return BaseService.put({
       url: `${API.STUDENT.GROUP_REQUIREMENTS}/${groupCode}/srs-documents/${documentId}`,

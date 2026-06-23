@@ -87,6 +87,7 @@ export default function Documents() {
   const [regenerateOpen, setRegenerateOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [generatingAi, setGeneratingAi] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [detailDocument, setDetailDocument] = useState(null);
@@ -268,6 +269,25 @@ export default function Documents() {
       );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleGenerateAi = async (requirementIds) => {
+    if (!group?.groupCode) return null;
+    try {
+      setGeneratingAi(true);
+      const response = await StudentService.generateSrsDocumentAi(group.groupCode, {
+        requirementIds: requirementIds.map(Number),
+      });
+      toast.success("AI content generated successfully!");
+      return response?.data;
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to generate content with AI",
+      );
+      return null;
+    } finally {
+      setGeneratingAi(false);
     }
   };
 
@@ -477,6 +497,8 @@ export default function Documents() {
         title="Generate SRS Document"
         okText="Generate"
         saving={saving}
+        generatingAi={generatingAi}
+        onGenerateAi={handleGenerateAi}
         initialValues={{
           documentTitle: "Software Requirements Specification",
           version: "1.0",
@@ -521,6 +543,8 @@ export default function Documents() {
         title="Regenerate SRS Document"
         okText="Regenerate"
         saving={saving}
+        generatingAi={generatingAi}
+        onGenerateAi={handleGenerateAi}
         initialValues={{
           documentTitle: selectedDocument?.documentTitle,
           version: selectedDocument?.version,

@@ -1,5 +1,6 @@
-import { useEffect } from "react";
-import { Col, Form, Grid, Input, Modal, Row, Select, Switch } from "antd";
+import { useEffect, useState, useMemo } from "react";
+import { Button, Col, Form, Grid, Input, Modal, Row, Select, Switch, Table, Space } from "antd";
+import { RobotOutlined } from "@ant-design/icons";
 
 const { TextArea } = Input;
 
@@ -87,30 +88,167 @@ function MetadataFields({ includeStatus = false }) {
   );
 }
 
+function RequirementTableSelector({ value = [], onChange, options = [] }) {
+  const [searchText, setSearchText] = useState("");
+
+  const dataSource = useMemo(() => {
+    return options.map((opt) => {
+      const parts = opt.label.split(" - ");
+      let section = "-";
+      let code = "";
+      let title = "";
+      if (parts.length === 3) {
+        section = parts[0];
+        code = parts[1];
+        title = parts[2];
+      } else if (parts.length === 2) {
+        code = parts[0];
+        title = parts[1];
+      } else {
+        code = `REQ-${opt.value}`;
+        title = opt.label;
+      }
+      return {
+        key: opt.value,
+        section,
+        code,
+        title,
+      };
+    });
+  }, [options]);
+
+  const filteredData = useMemo(() => {
+    if (!searchText) return dataSource;
+    const lower = searchText.toLowerCase();
+    return dataSource.filter(
+      (item) =>
+        item.code.toLowerCase().includes(lower) ||
+        item.title.toLowerCase().includes(lower) ||
+        item.section.toLowerCase().includes(lower)
+    );
+  }, [dataSource, searchText]);
+
+  const columns = [
+    {
+      title: "Section",
+      dataIndex: "section",
+      key: "section",
+      width: 100,
+    },
+    {
+      title: "Code",
+      dataIndex: "code",
+      key: "code",
+      width: 120,
+      render: (text) => <span className="font-semibold text-slate-700">{text}</span>,
+    },
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+    },
+  ];
+
+  const handleSelectAll = () => {
+    const allKeys = dataSource.map((item) => item.key);
+    if (onChange) onChange(allKeys);
+  };
+
+  const handleClearSelection = () => {
+    if (onChange) onChange([]);
+  };
+
+  const rowSelection = {
+    selectedRowKeys: value,
+    onChange: (selectedKeys) => {
+      if (onChange) onChange(selectedKeys);
+    },
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Space size="middle" className="flex-wrap">
+          <Input
+            placeholder="Search requirements by code or title..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: 280 }}
+            allowClear
+          />
+          <span className="text-sm font-medium text-slate-500">
+            Selected: <strong className="text-purple-600">{value.length}</strong> / {dataSource.length}
+          </span>
+        </Space>
+        <Space>
+          <Button size="small" onClick={handleSelectAll}>
+            Add All
+          </Button>
+          <Button size="small" danger onClick={handleClearSelection}>
+            Remove All
+          </Button>
+        </Space>
+      </div>
+      <Table
+        rowSelection={rowSelection}
+        columns={columns}
+        dataSource={filteredData}
+        pagination={{ pageSize: 5, showSizeChanger: false }}
+        size="small"
+        bordered
+        locale={{ emptyText: "No requirements found" }}
+      />
+    </div>
+  );
+}
+
 export default function SrsDocumentFormModal({
   open,
   title,
   okText,
   saving = false,
+  generatingAi = false,
   initialValues,
   requirementOptions = [],
   includeRequirements = false,
   includeStatus = false,
   onCancel,
   onSubmit,
+  onGenerateAi,
 }) {
   const screens = Grid.useBreakpoint();
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (!open) return;
-    form.resetFields();
-    form.setFieldsValue(initialValues);
-  }, [form, initialValues, open]);
+    if (open) {
+      form.resetFields();
+      form.setFieldsValue(initialValues);
+    }
+  }, [open]);
 
   const handleOk = async () => {
     const values = await form.validateFields();
     await onSubmit(values);
+  };
+
+  const handleGenerateAiClick = async () => {
+    if (!onGenerateAi) return;
+    try {
+      const requirementIds = form.getFieldValue("requirementIds") || [];
+      const result = await onGenerateAi(requirementIds);
+      if (result) {
+        form.setFieldsValue({
+          introduction: result.introduction || "",
+          scope: result.scope || "",
+          productPerspective: result.productPerspective || "",
+          userClasses: result.userClasses || "",
+          operatingEnvironment: result.operatingEnvironment || "",
+          assumptionsDependencies: result.assumptionsDependencies || "",
+        });
+      }
+    } catch (err) {
+      // Handled in parent
+    }
   };
 
   return (
@@ -140,41 +278,54 @@ export default function SrsDocumentFormModal({
         <MetadataFields includeStatus={includeStatus} />
 
         {includeRequirements ? (
-          <Row gutter={16}>
-            <Col xs={24} md={16}>
-              <Form.Item
-                label="Requirements"
-                name="requirementIds"
-                rules={[
-                  {
-                    required: true,
-                    type: "array",
-                    min: 1,
-                    message: "Select at least one requirement",
-                  },
-                ]}
-              >
-                <Select
-                  mode="multiple"
-                  showSearch
-                  allowClear
-                  options={requirementOptions}
-                  placeholder="Choose included requirements"
-                  optionFilterProp="label"
-                />
-              </Form.Item>
-            </Col>
+          <>
+            <Row gutter={16}>
+              <Col span={24}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-slate-800">Requirements</span>
+                  <Form.Item
+                    name="importFromJira"
+                    valuePropName="checked"
+                    className="!mb-0"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500">Import From Jira</span>
+                      <Switch size="small" />
+                    </div>
+                  </Form.Item>
+                </div>
+                <Form.Item
+                  name="requirementIds"
+                  rules={[
+                    {
+                      required: true,
+                      type: "array",
+                      min: 1,
+                      message: "Select at least one requirement",
+                    },
+                  ]}
+                >
+                  <RequirementTableSelector options={requirementOptions} />
+                </Form.Item>
+              </Col>
+            </Row>
 
-            <Col xs={24} md={8}>
-              <Form.Item
-                label="Import From Jira"
-                name="importFromJira"
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-            </Col>
-          </Row>
+            {onGenerateAi ? (
+              <Row gutter={16} className="mb-4">
+                <Col span={24}>
+                  <Button
+                    type="dashed"
+                    icon={<RobotOutlined />}
+                    loading={generatingAi}
+                    onClick={handleGenerateAiClick}
+                    className="w-full border-purple-300 text-purple-600 hover:!border-purple-500 hover:!text-purple-700 bg-purple-50 hover:bg-purple-100 font-semibold flex items-center justify-center gap-2"
+                  >
+                    Generate Document Sections with AI (Uses Selected Requirements)
+                  </Button>
+                </Col>
+              </Row>
+            ) : null}
+          </>
         ) : null}
       </Form>
     </Modal>
