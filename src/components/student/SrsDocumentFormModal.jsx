@@ -71,6 +71,60 @@ function MetadataFields({ includeStatus = false }) {
         </Form.Item>
       </Col>
 
+      <Col span={24}>
+        <Form.Item label="Glossary" name="glossary">
+          <TextArea rows={3} placeholder="Terms, acronyms, and abbreviations" />
+        </Form.Item>
+      </Col>
+
+      <Col xs={24} md={12}>
+        <Form.Item label="User Interfaces" name="userInterfaces">
+          <TextArea rows={3} placeholder="User interface requirements" />
+        </Form.Item>
+      </Col>
+
+      <Col xs={24} md={12}>
+        <Form.Item label="Hardware Interfaces" name="hardwareInterfaces">
+          <TextArea rows={3} placeholder="Hardware interface requirements" />
+        </Form.Item>
+      </Col>
+
+      <Col xs={24} md={12}>
+        <Form.Item label="Software Interfaces" name="softwareInterfaces">
+          <TextArea rows={3} placeholder="Software interface requirements" />
+        </Form.Item>
+      </Col>
+
+      <Col xs={24} md={12}>
+        <Form.Item label="Communications Interfaces" name="communicationsInterfaces">
+          <TextArea rows={3} placeholder="Communications interface requirements" />
+        </Form.Item>
+      </Col>
+
+      <Col xs={24} md={12}>
+        <Form.Item label="Performance Requirements" name="performanceRequirements">
+          <TextArea rows={3} placeholder="System performance requirements" />
+        </Form.Item>
+      </Col>
+
+      <Col xs={24} md={12}>
+        <Form.Item label="Security Requirements" name="securityRequirements">
+          <TextArea rows={3} placeholder="System security requirements" />
+        </Form.Item>
+      </Col>
+
+      <Col xs={24} md={12}>
+        <Form.Item label="Safety Requirements" name="safetyRequirements">
+          <TextArea rows={3} placeholder="System safety requirements" />
+        </Form.Item>
+      </Col>
+
+      <Col xs={24} md={12}>
+        <Form.Item label="Software System Attributes" name="softwareSystemAttributes">
+          <TextArea rows={3} placeholder="Software quality attributes (reliability, availability, maintainability, portability, etc.)" />
+        </Form.Item>
+      </Col>
+
       {includeStatus ? (
         <Col xs={24} md={12}>
           <Form.Item label="Status" name="status">
@@ -244,6 +298,15 @@ export default function SrsDocumentFormModal({
           userClasses: result.userClasses || "",
           operatingEnvironment: result.operatingEnvironment || "",
           assumptionsDependencies: result.assumptionsDependencies || "",
+          glossary: result.glossary || "",
+          userInterfaces: result.userInterfaces || "",
+          hardwareInterfaces: result.hardwareInterfaces || "",
+          softwareInterfaces: result.softwareInterfaces || "",
+          communicationsInterfaces: result.communicationsInterfaces || "",
+          performanceRequirements: result.performanceRequirements || "",
+          securityRequirements: result.securityRequirements || "",
+          safetyRequirements: result.safetyRequirements || "",
+          softwareSystemAttributes: result.softwareSystemAttributes || "",
         });
       }
     } catch (err) {
