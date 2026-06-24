@@ -46,6 +46,7 @@ const formatDateTime = (value) => {
 const mapRequirementOption = (item) => ({
   value: Number(item.requirementId),
   label: `${item.sectionNumber ? `${item.sectionNumber} - ` : ""}${item.requirementCode || `REQ-${item.requirementId}`} - ${item.title || "Untitled requirement"}`,
+  requirementType: item.requirementType,
 });
 
 const mapDocument = (item) => ({
@@ -87,6 +88,7 @@ export default function Documents() {
   const [regenerateOpen, setRegenerateOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [generatingAi, setGeneratingAi] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [detailDocument, setDetailDocument] = useState(null);
@@ -199,6 +201,15 @@ export default function Documents() {
         userClasses: values.userClasses || "",
         operatingEnvironment: values.operatingEnvironment || "",
         assumptionsDependencies: values.assumptionsDependencies || "",
+        glossary: values.glossary || "",
+        userInterfaces: values.userInterfaces || "",
+        hardwareInterfaces: values.hardwareInterfaces || "",
+        softwareInterfaces: values.softwareInterfaces || "",
+        communicationsInterfaces: values.communicationsInterfaces || "",
+        performanceRequirements: values.performanceRequirements || "",
+        securityRequirements: values.securityRequirements || "",
+        safetyRequirements: values.safetyRequirements || "",
+        softwareSystemAttributes: values.softwareSystemAttributes || "",
         requirementIds: values.requirementIds.map(Number),
         importFromJira: Boolean(values.importFromJira),
       });
@@ -231,6 +242,15 @@ export default function Documents() {
           userClasses: values.userClasses || "",
           operatingEnvironment: values.operatingEnvironment || "",
           assumptionsDependencies: values.assumptionsDependencies || "",
+          glossary: values.glossary || "",
+          userInterfaces: values.userInterfaces || "",
+          hardwareInterfaces: values.hardwareInterfaces || "",
+          softwareInterfaces: values.softwareInterfaces || "",
+          communicationsInterfaces: values.communicationsInterfaces || "",
+          performanceRequirements: values.performanceRequirements || "",
+          securityRequirements: values.securityRequirements || "",
+          safetyRequirements: values.safetyRequirements || "",
+          softwareSystemAttributes: values.softwareSystemAttributes || "",
           status: values.status || "draft",
         },
       );
@@ -268,6 +288,25 @@ export default function Documents() {
       );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleGenerateAi = async (requirementIds) => {
+    if (!group?.groupCode) return null;
+    try {
+      setGeneratingAi(true);
+      const response = await StudentService.generateSrsDocumentAi(group.groupCode, {
+        requirementIds: requirementIds.map(Number),
+      });
+      toast.success("AI content generated successfully!");
+      return response?.data;
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to generate content with AI",
+      );
+      return null;
+    } finally {
+      setGeneratingAi(false);
     }
   };
 
@@ -477,6 +516,8 @@ export default function Documents() {
         title="Generate SRS Document"
         okText="Generate"
         saving={saving}
+        generatingAi={generatingAi}
+        onGenerateAi={handleGenerateAi}
         initialValues={{
           documentTitle: "Software Requirements Specification",
           version: "1.0",
@@ -486,6 +527,15 @@ export default function Documents() {
           userClasses: "",
           operatingEnvironment: "",
           assumptionsDependencies: "",
+          glossary: "",
+          userInterfaces: "",
+          hardwareInterfaces: "",
+          softwareInterfaces: "",
+          communicationsInterfaces: "",
+          performanceRequirements: "",
+          securityRequirements: "",
+          safetyRequirements: "",
+          softwareSystemAttributes: "",
           requirementIds: [],
           importFromJira: true,
         }}
@@ -509,6 +559,15 @@ export default function Documents() {
           userClasses: selectedDocument?.userClasses,
           operatingEnvironment: selectedDocument?.operatingEnvironment,
           assumptionsDependencies: selectedDocument?.assumptionsDependencies,
+          glossary: selectedDocument?.glossary,
+          userInterfaces: selectedDocument?.userInterfaces,
+          hardwareInterfaces: selectedDocument?.hardwareInterfaces,
+          softwareInterfaces: selectedDocument?.softwareInterfaces,
+          communicationsInterfaces: selectedDocument?.communicationsInterfaces,
+          performanceRequirements: selectedDocument?.performanceRequirements,
+          securityRequirements: selectedDocument?.securityRequirements,
+          safetyRequirements: selectedDocument?.safetyRequirements,
+          softwareSystemAttributes: selectedDocument?.softwareSystemAttributes,
           status: selectedDocument?.status || "draft",
         }}
         includeStatus
@@ -521,6 +580,8 @@ export default function Documents() {
         title="Regenerate SRS Document"
         okText="Regenerate"
         saving={saving}
+        generatingAi={generatingAi}
+        onGenerateAi={handleGenerateAi}
         initialValues={{
           documentTitle: selectedDocument?.documentTitle,
           version: selectedDocument?.version,
@@ -530,6 +591,15 @@ export default function Documents() {
           userClasses: selectedDocument?.userClasses,
           operatingEnvironment: selectedDocument?.operatingEnvironment,
           assumptionsDependencies: selectedDocument?.assumptionsDependencies,
+          glossary: selectedDocument?.glossary,
+          userInterfaces: selectedDocument?.userInterfaces,
+          hardwareInterfaces: selectedDocument?.hardwareInterfaces,
+          softwareInterfaces: selectedDocument?.softwareInterfaces,
+          communicationsInterfaces: selectedDocument?.communicationsInterfaces,
+          performanceRequirements: selectedDocument?.performanceRequirements,
+          securityRequirements: selectedDocument?.securityRequirements,
+          safetyRequirements: selectedDocument?.safetyRequirements,
+          softwareSystemAttributes: selectedDocument?.softwareSystemAttributes,
           requirementIds: Array.isArray(selectedDocument?.requirements)
             ? selectedDocument.requirements.map((item) =>
                 Number(item.requirementId),

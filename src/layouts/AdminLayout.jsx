@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/coreUI/Sidebar";
 import Topbar from "../components/coreUI/Topbar";
+import Chatbox from "../components/coreUI/Chatbox";
 import "./AdminLayout.css";
 
 export default function AdminLayout() {
@@ -41,6 +42,8 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
+
+      <Chatbox />
     </div>
   );
 }
