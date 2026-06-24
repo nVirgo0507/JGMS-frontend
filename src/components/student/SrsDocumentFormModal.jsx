@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Button, Col, Form, Grid, Input, Modal, Row, Select, Switch, Table, Space } from "antd";
+import { Button, Col, Form, Grid, Input, Modal, Row, Select, Switch, Table, Space, Tag } from "antd";
 import { RobotOutlined } from "@ant-design/icons";
 
 const { TextArea } = Input;
@@ -144,6 +144,7 @@ function MetadataFields({ includeStatus = false }) {
 
 function RequirementTableSelector({ value = [], onChange, options = [] }) {
   const [searchText, setSearchText] = useState("");
+  const [selectedType, setSelectedType] = useState("All");
 
   const dataSource = useMemo(() => {
     return options.map((opt) => {
@@ -167,20 +168,37 @@ function RequirementTableSelector({ value = [], onChange, options = [] }) {
         section,
         code,
         title,
+        requirementType: opt.requirementType || "-",
       };
     });
   }, [options]);
 
+  const uniqueTypes = useMemo(() => {
+    const types = new Set();
+    options.forEach((opt) => {
+      if (opt.requirementType) {
+        types.add(opt.requirementType);
+      }
+    });
+    return ["All", ...Array.from(types)];
+  }, [options]);
+
   const filteredData = useMemo(() => {
-    if (!searchText) return dataSource;
-    const lower = searchText.toLowerCase();
-    return dataSource.filter(
-      (item) =>
-        item.code.toLowerCase().includes(lower) ||
-        item.title.toLowerCase().includes(lower) ||
-        item.section.toLowerCase().includes(lower)
-    );
-  }, [dataSource, searchText]);
+    let data = dataSource;
+    if (selectedType !== "All") {
+      data = data.filter((item) => item.requirementType === selectedType);
+    }
+    if (searchText) {
+      const lower = searchText.toLowerCase();
+      data = data.filter(
+        (item) =>
+          item.code.toLowerCase().includes(lower) ||
+          item.title.toLowerCase().includes(lower) ||
+          item.section.toLowerCase().includes(lower)
+      );
+    }
+    return data;
+  }, [dataSource, searchText, selectedType]);
 
   const columns = [
     {
@@ -201,10 +219,20 @@ function RequirementTableSelector({ value = [], onChange, options = [] }) {
       dataIndex: "title",
       key: "title",
     },
+    {
+      title: "Type",
+      dataIndex: "requirementType",
+      key: "requirementType",
+      width: 130,
+      render: (text) => {
+        const isNonFunc = text?.toLowerCase()?.includes("non");
+        return <Tag color={isNonFunc ? "orange" : "blue"}>{text}</Tag>;
+      },
+    },
   ];
 
   const handleSelectAll = () => {
-    const allKeys = dataSource.map((item) => item.key);
+    const allKeys = filteredData.map((item) => item.key);
     if (onChange) onChange(allKeys);
   };
 
@@ -230,13 +258,20 @@ function RequirementTableSelector({ value = [], onChange, options = [] }) {
             style={{ width: 280 }}
             allowClear
           />
+          <Select
+            value={selectedType}
+            onChange={setSelectedType}
+            style={{ width: 160 }}
+            options={uniqueTypes.map((t) => ({ label: t, value: t }))}
+            placeholder="Filter by Type"
+          />
           <span className="text-sm font-medium text-slate-500">
             Selected: <strong className="text-purple-600">{value.length}</strong> / {dataSource.length}
           </span>
         </Space>
         <Space>
           <Button size="small" onClick={handleSelectAll}>
-            Add All
+            Add All Filtered
           </Button>
           <Button size="small" danger onClick={handleClearSelection}>
             Remove All

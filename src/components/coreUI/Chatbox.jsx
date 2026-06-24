@@ -11,6 +11,44 @@ import { useAuth } from "../../contexts/AuthContext";
 import { BaseService } from "../../config/basic.service";
 import "./Chatbox.css";
 
+function parseBoldText(text) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={index} className="font-semibold text-slate-800 dark:text-slate-900">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+}
+
+function renderMessageText(text) {
+  if (!text) return null;
+  const blocks = text.split(/\n\n+/);
+  return blocks.map((block, index) => {
+    const lines = block.split('\n');
+    const isList = lines.every(line => line.trim().startsWith('*') || line.trim().startsWith('-'));
+    if (isList) {
+      return (
+        <ul key={index} className="list-disc pl-5 mb-2 space-y-1">
+          {lines.map((line, lIdx) => {
+            const cleanLine = line.trim().replace(/^[\*\-]\s+/, '');
+            return <li key={lIdx}>{parseBoldText(cleanLine)}</li>;
+          })}
+        </ul>
+      );
+    }
+    return (
+      <div key={index} className="mb-2 last:mb-0">
+        {lines.map((line, lIdx) => (
+          <span key={lIdx} style={{ display: 'block' }}>
+            {parseBoldText(line)}
+          </span>
+        ))}
+      </div>
+    );
+  });
+}
+
 export default function Chatbox() {
   const { isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -247,7 +285,7 @@ export default function Chatbox() {
                     className={`chat-message ${msg.sender === "user" ? "message-user" : "message-bot"}`}
                   >
                     <div className="message-bubble">
-                      <p>{msg.text}</p>
+                      {renderMessageText(msg.text)}
                       <span className="message-time">{msg.time}</span>
                     </div>
                   </div>
@@ -287,7 +325,7 @@ export default function Chatbox() {
                         className={`chat-message ${msg.sender === "user" ? "message-user" : "message-bot"}`}
                       >
                         <div className="message-bubble">
-                          <p>{msg.text}</p>
+                          {renderMessageText(msg.text)}
                           <span className="message-time">{msg.time}</span>
                         </div>
                       </div>

@@ -46,6 +46,7 @@ const formatDateTime = (value) => {
 const mapRequirementOption = (item) => ({
   value: Number(item.requirementId),
   label: `${item.sectionNumber ? `${item.sectionNumber} - ` : ""}${item.requirementCode || `REQ-${item.requirementId}`} - ${item.title || "Untitled requirement"}`,
+  requirementType: item.requirementType,
 });
 
 const mapDocument = (item) => ({
