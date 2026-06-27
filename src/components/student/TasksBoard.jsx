@@ -8,6 +8,7 @@ import {
   SendOutlined,
   UnorderedListOutlined,
   CodeOutlined,
+  CloudDownloadOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -233,6 +234,7 @@ export default function TasksBoard({
   const [viewMode, setViewMode] = useState("list");
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [fromJiraModalOpen, setFromJiraModalOpen] = useState(false);
+  const [importingTasks, setImportingTasks] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [commitModalOpen, setCommitModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -459,6 +461,32 @@ export default function TasksBoard({
     }
   };
 
+  const handleImportAssignedTasksFromJira = async () => {
+    if (!isLeader) {
+      toast.error("Only group leaders can auto-import tasks");
+      return;
+    }
+
+    const toastId = toast.loading("Importing tasks from Jira...");
+    try {
+      setImportingTasks(true);
+      const res = await StudentService.importGroupAssignedTasksFromJira(groupCode);
+      const { imported, skipped, failed, errors } = res.data || {};
+      
+      if (failed > 0) {
+          toast.update(toastId, { render: `Imported ${imported}, Skipped ${skipped}, Failed ${failed}. Errors: ${errors?.join(', ')}`, type: "warning", isLoading: false, autoClose: 5000 });
+      } else {
+          toast.update(toastId, { render: `Successfully imported ${imported} tasks! (Skipped ${skipped})`, type: "success", isLoading: false, autoClose: 3000 });
+      }
+      
+      await loadTasks();
+    } catch (error) {
+      toast.update(toastId, { render: error?.response?.data?.message || "Failed to auto-import tasks", type: "error", isLoading: false, autoClose: 5000 });
+    } finally {
+      setImportingTasks(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (!isLeader) {
       toast.error("Only group leaders can delete tasks");
@@ -673,6 +701,13 @@ export default function TasksBoard({
 
             {isLeader ? (
               <>
+                <Button
+                  icon={<CloudDownloadOutlined />}
+                  onClick={handleImportAssignedTasksFromJira}
+                  loading={importingTasks}
+                >
+                  Import Assigned
+                </Button>
                 <Button
                   icon={<SendOutlined />}
                   onClick={() => setFromJiraModalOpen(true)}

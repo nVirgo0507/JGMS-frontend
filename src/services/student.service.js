@@ -147,6 +147,13 @@ export const StudentService = {
     });
   },
 
+  importGroupAssignedTasksFromJira(groupCode) {
+    return BaseService.post({
+      url: `${API.STUDENT.GROUP_TASKS}/${groupCode}/tasks/import-assigned-from-jira`,
+      isLoading: true,
+    });
+  },
+
   updateGroupTask(groupCode, taskId, payload) {
     return BaseService.put({
       url: `${API.STUDENT.GROUP_TASKS}/${groupCode}/tasks/${taskId}`,

@@ -32,6 +32,7 @@ import ProtectedRoute from "./ProtectedRoute";
 
 const AppRoutes = () =>
   useRoutes([
+    { path: "/student/jira-callback", element: <JiraCallback /> },
     {
       element: <MainLayout />,
       children: [
@@ -39,7 +40,6 @@ const AppRoutes = () =>
         { path: ROUTER_URL.COMMON.LOGIN, element: <LoginPage /> },
         { path: ROUTER_URL.COMMON.REGISTER, element: <RegisterPage /> },
         { path: "/register/complete-profile", element: <CompleteProfilePage /> },
-        { path: "/student/jira-callback", element: <JiraCallback /> },
       ],
     },
     {

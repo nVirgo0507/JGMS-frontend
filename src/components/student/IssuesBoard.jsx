@@ -43,7 +43,6 @@ const SYNC_ACTIVE_STATUSES = new Set([
   "RUNNING",
   "IN_PROGRESS",
   "PROCESSING",
-  "PENDING",
   "SYNCING",
 ]);
 

@@ -175,15 +175,9 @@ export default function MyGroup() {
 
   const isLeader = group?.members?.find((m) => m.userId === profile?.userId)?.isLeader;
 
-  const handleConnectJira = async () => {
-    try {
-      const res = await BaseService.get({ url: `/api/jira/auth/login?state=${group.groupCode}` });
-      if (res.data?.url) {
-        window.location.href = res.data.url;
-      }
-    } catch (err) {
-      toast.error("Failed to initiate Jira connection.");
-    }
+  const handleConnectJira = () => {
+    const baseUrl = import.meta.env.VITE_API_URL || "https://swp391-jgms-api.onrender.com";
+    window.location.href = `${baseUrl}/api/jira/auth/login?state=${group.groupCode}`;
   };
 
   return (
@@ -231,7 +225,7 @@ export default function MyGroup() {
         </Col>
       </Row>
 
-      {isLeader && (
+      {isLeader && !group?.jiraStatus?.isConfigured && (
         <Row gutter={[16, 0]} className="mb-8">
           <Col xs={24}>
             <Card className="rounded-3xl shadow-sm bg-gradient-to-r from-blue-600 to-indigo-700 text-white border-0">
@@ -253,6 +247,51 @@ export default function MyGroup() {
                 >
                   Configure Integration
                 </Button>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      )}
+
+      {group?.jiraStatus?.isConfigured && (
+        <Row gutter={[16, 0]} className="mb-8">
+          <Col xs={24}>
+            <Card className="rounded-3xl shadow-sm border border-blue-100 bg-blue-50/50">
+              <div className="flex flex-col md:flex-row items-center justify-between p-2 md:p-4">
+                <div className="flex items-center gap-4 mb-4 md:mb-0">
+                  <div className="bg-blue-100 text-blue-600 p-4 rounded-full">
+                    <CloudServerOutlined style={{ fontSize: 32 }} />
+                  </div>
+                  <div>
+                    <Title level={4} className="!text-blue-900 !mb-1">Jira Integration Active</Title>
+                    <div className="flex items-center gap-2 mt-1">
+                        <Text className="text-slate-600">Status:</Text>
+                        <Tag color={group.jiraStatus.syncStatus?.toLowerCase() === 'success' ? 'green' : 'red'}>
+                            {group.jiraStatus.syncStatus?.toUpperCase() || 'UNKNOWN'}
+                        </Tag>
+                        <Text className="text-slate-600 ml-2">Last Sync: {formatDateTime(group.jiraStatus.lastSync)}</Text>
+                    </div>
+                  </div>
+                </div>
+                {isLeader && (
+                  <Button 
+                    size="large" 
+                    type="primary" 
+                    className="font-semibold px-8 rounded-xl h-12 shadow-md bg-blue-600 hover:bg-blue-700"
+                    onClick={async () => {
+                        const toastId = toast.loading("Syncing with Jira...");
+                        try {
+                            await StudentService.syncGroupIssues(group.groupCode);
+                            toast.update(toastId, { render: "Sync completed successfully!", type: "success", isLoading: false, autoClose: 3000 });
+                            setTimeout(() => window.location.reload(), 1000);
+                        } catch (err) {
+                            toast.update(toastId, { render: "Sync failed: " + (err.response?.data?.message || err.message), type: "error", isLoading: false, autoClose: 5000 });
+                        }
+                    }}
+                  >
+                    Sync Now
+                  </Button>
+                )}
               </div>
             </Card>
           </Col>

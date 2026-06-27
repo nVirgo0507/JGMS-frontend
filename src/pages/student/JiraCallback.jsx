@@ -18,6 +18,7 @@ const JiraCallback = () => {
   const [tokens, setTokens] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [form] = Form.useForm();
+  const exchangeRef = React.useRef(false);
 
   const code = searchParams.get("code");
   const groupCode = searchParams.get("state"); // We passed groupCode in the state!
@@ -30,6 +31,9 @@ const JiraCallback = () => {
       return;
     }
 
+    if (exchangeRef.current) return;
+    exchangeRef.current = true;
+
     // 1. Exchange code for tokens
     const exchangeTokens = async () => {
       try {
@@ -41,7 +45,8 @@ const JiraCallback = () => {
           });
           
           if (response?.data?.isNewUser) {
-            localStorage.setItem("JIRA_SSO_PROFILE", JSON.stringify(response.data.profile));
+            const profileWithTokens = { ...response.data.profile, accessToken: response.data.accessToken, refreshToken: response.data.refreshToken, expiresIn: response.data.expiresIn };
+            localStorage.setItem("JIRA_SSO_PROFILE", JSON.stringify(profileWithTokens));
             navigate("/register/complete-profile");
           } else if (response?.data?.accessToken) {
             const accessToken = response.data.accessToken;
@@ -83,9 +88,10 @@ const JiraCallback = () => {
     try {
       setStatus("saving");
       const payload = {
-        jiraUrl: tokens.cloudId, // Backend maps cloudId to JiraUrl for OAuth
-        jiraEmail: "oauth@placeholder.com", // Ignored for OAuth
-        apiToken: tokens.accessToken, // Backend maps accessToken to ApiToken for OAuth
+        cloudId: tokens.cloudId,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresIn: tokens.expiresIn,
         projectKey: values.projectKey
       };
 
