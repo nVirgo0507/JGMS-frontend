@@ -13,6 +13,7 @@ import {
   Table,
   Tag,
   Typography,
+  Button,
 } from "antd";
 import {
   TeamOutlined,
@@ -20,8 +21,11 @@ import {
   UserOutlined,
   CalendarOutlined,
   CrownOutlined,
+  CloudServerOutlined,
 } from "@ant-design/icons";
+import { toast } from "react-toastify";
 import { StudentService } from "../../services/student.service";
+import { BaseService } from "../../config/basic.service";
 
 const { Title, Paragraph, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -93,21 +97,26 @@ const memberColumns = [
 export default function MyGroup() {
   const screens = useBreakpoint();
   const [group, setGroup] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notAssigned, setNotAssigned] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    const fetchGroup = async () => {
+    const fetchData = async () => {
       try {
-        const response = await StudentService.getMyGroup();
-        setGroup(response?.data ?? null);
+        const [groupRes, profileRes] = await Promise.all([
+          StudentService.getMyGroup(),
+          StudentService.getProfile({ isLoading: false })
+        ]);
+        setGroup(groupRes?.data ?? null);
+        setProfile(profileRes?.data ?? null);
         setLoadError(false);
       } catch (error) {
         if (error?.response?.status === 404) {
           setNotAssigned(true);
         } else {
-          console.error("Failed to load student group", error);
+          console.error("Failed to load data", error);
           setLoadError(true);
         }
       } finally {
@@ -115,7 +124,7 @@ export default function MyGroup() {
       }
     };
 
-    fetchGroup();
+    fetchData();
   }, []);
 
   if (loading) {
@@ -164,6 +173,19 @@ export default function MyGroup() {
     );
   }
 
+  const isLeader = group?.members?.find((m) => m.userId === profile?.userId)?.isLeader;
+
+  const handleConnectJira = async () => {
+    try {
+      const res = await BaseService.get({ url: `/api/jira/auth/login?state=${group.groupCode}` });
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (err) {
+      toast.error("Failed to initiate Jira connection.");
+    }
+  };
+
   return (
     <div className="p-4 md:p-6 xl:p-8">
       <Row gutter={[16, 0]} style={{ rowGap: 16 }} className="mb-8">
@@ -208,6 +230,34 @@ export default function MyGroup() {
           </Card>
         </Col>
       </Row>
+
+      {isLeader && (
+        <Row gutter={[16, 0]} className="mb-8">
+          <Col xs={24}>
+            <Card className="rounded-3xl shadow-sm bg-gradient-to-r from-blue-600 to-indigo-700 text-white border-0">
+              <div className="flex flex-col md:flex-row items-center justify-between p-2 md:p-4">
+                <div className="flex items-center gap-4 mb-4 md:mb-0">
+                  <div className="bg-white/20 p-4 rounded-full">
+                    <CloudServerOutlined style={{ fontSize: 32 }} />
+                  </div>
+                  <div>
+                    <Title level={4} className="!text-white !mb-1">Connect with Jira</Title>
+                    <Text className="text-blue-100">Synchronize your project tasks, requirements, and progress automatically with Atlassian Jira.</Text>
+                  </div>
+                </div>
+                <Button 
+                  size="large" 
+                  type="default" 
+                  className="font-semibold px-8 rounded-xl h-12 hover:!text-blue-700 hover:!border-white hover:scale-105 transition-transform shadow-lg"
+                  onClick={handleConnectJira}
+                >
+                  Configure Integration
+                </Button>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      )}
 
       <Row gutter={[16, 0]} style={{ rowGap: 16 }}>
         <Col xs={24}>

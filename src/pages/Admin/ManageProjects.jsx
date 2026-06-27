@@ -193,8 +193,7 @@ function GroupIntegrationRow({ group, onRefresh }) {
   const [testResult, setTestResult]   = useState(null);
   const [syncing, setSyncing]         = useState(false);
   const [githubModal, setGithubModal] = useState(false);
-  const [jiraModal, setJiraModal]     = useState(false);
-  const [syncingGithub, setSyncingGithub] = useState(false);
+    const [syncingGithub, setSyncingGithub] = useState(false);
 
   const loadJira = useCallback(async () => {
     try {
@@ -367,9 +366,7 @@ function GroupIntegrationRow({ group, onRefresh }) {
                   </Popconfirm>
                 </>
               )}
-              <Button size="small" icon={<ApiOutlined />} onClick={() => setJiraModal(true)}>
-                {jiraConfig ? "Edit" : "Configure"}
-              </Button>
+              
             </div>
           </div>
 
@@ -377,8 +374,8 @@ function GroupIntegrationRow({ group, onRefresh }) {
             <Spin size="small" />
           ) : jiraConfig ? (
             <Descriptions size="small" column={1}>
-              <Descriptions.Item label="URL">{jiraConfig.jiraUrl}</Descriptions.Item>
-              <Descriptions.Item label="Email">{jiraConfig.jiraEmail}</Descriptions.Item>
+              
+              
               <Descriptions.Item label="Project Key">{jiraConfig.projectKey}</Descriptions.Item>
               {jiraConfig.lastSync && (
                 <Descriptions.Item label="Last Sync">
@@ -387,7 +384,7 @@ function GroupIntegrationRow({ group, onRefresh }) {
               )}
             </Descriptions>
           ) : (
-            <Text type="secondary" className="text-sm">Not configured. Click Configure to set up Jira.</Text>
+            <Text type="secondary" className="text-sm">Not configured. The Team Leader must connect Jira from their dashboard.</Text>
           )}
 
           {testResult && (
@@ -410,13 +407,7 @@ function GroupIntegrationRow({ group, onRefresh }) {
         onClose={() => setGithubModal(false)}
         onDone={() => { onRefresh(); loadGithub(); }}
       />
-      <JiraModal
-        open={jiraModal}
-        groupCode={group.groupCode}
-        existing={jiraConfig}
-        onClose={() => setJiraModal(false)}
-        onDone={loadJira}
-      />
+
     </div>
   );
 }

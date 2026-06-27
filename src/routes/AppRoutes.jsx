@@ -23,8 +23,10 @@ import LecturerDashboard from "../pages/lecturer/Dashboard";
 import GroupDetails from "../pages/lecturer/GroupDetails";
 import GithubReport from "../pages/lecturer/GithubReport";
 import LecturerProfile from "../pages/lecturer/Profile"; 
+import JiraCallback from "../pages/student/JiraCallback";
 import LoginPage from "../pages/auth/Login";
 import RegisterPage from "../pages/auth/Register";
+import CompleteProfilePage from "../pages/auth/CompleteProfile";
 import HomePage from "../pages/common/Home";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -36,6 +38,8 @@ const AppRoutes = () =>
         { path: ROUTER_URL.COMMON.HOME, element: <HomePage /> },
         { path: ROUTER_URL.COMMON.LOGIN, element: <LoginPage /> },
         { path: ROUTER_URL.COMMON.REGISTER, element: <RegisterPage /> },
+        { path: "/register/complete-profile", element: <CompleteProfilePage /> },
+        { path: "/student/jira-callback", element: <JiraCallback /> },
       ],
     },
     {
