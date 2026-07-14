@@ -157,7 +157,7 @@ export default function ManageGroups() {
         });
         if (values.newMemberIds?.length) {
           await AdminGroupService.addMembers(editingGroup.groupCode, {
-            studentIdentifiers: values.newMemberIds.map(Number),
+            studentIdentifiers: values.newMemberIds.map(String),
           });
         }
         toast.success("Group updated!");
@@ -254,7 +254,7 @@ export default function ManageGroups() {
             onChange={async (ids) => {
               if (!ids.length) return;
               try {
-                await AdminGroupService.addMembers(record.groupCode, { studentIdentifiers: ids.map(Number) });
+                await AdminGroupService.addMembers(record.groupCode, { studentIdentifiers: ids.map(String) });
                 toast.success("Members added!");
                 handleMemberRemoved(record.groupCode);
               } catch (err) {
