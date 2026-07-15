@@ -30,4 +30,12 @@ export const AuthService = {
   register(payload = {}) {
     return this.registerStudent(payload);
   },
+
+  changePassword({ currentPassword, newPassword } = {}) {
+    return BaseService.put({
+      url: API.AUTH.CHANGE_PASSWORD,
+      payload: { currentPassword, newPassword },
+      isLoading: true,
+    });
+  },
 };

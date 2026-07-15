@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { StudentService } from "../../services/student.service";
 import { toast } from "react-toastify";
+import ChangePasswordModal from "../../components/common/ChangePasswordModal";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -12,6 +13,7 @@ export default function Profile() {
     githubUsername: "",
     jiraAccountId: "",
   });
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -94,12 +96,20 @@ export default function Profile() {
               Profile Information
             </h2>
             {!isEditing && (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition"
-              >
-                Edit Profile
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsPasswordModalOpen(true)}
+                  className="px-4 py-2 bg-slate-100 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-200 transition"
+                >
+                  Change Password
+                </button>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition"
+                >
+                  Edit Profile
+                </button>
+              </div>
             )}
           </div>
 
@@ -277,6 +287,11 @@ export default function Profile() {
           </div>
         </div>
       </div>
+      
+      <ChangePasswordModal 
+        open={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)} 
+      />
     </div>
   );
 }

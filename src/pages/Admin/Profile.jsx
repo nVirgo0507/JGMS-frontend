@@ -1,9 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { Card, Descriptions, Typography, Avatar, Divider, Tag, Spin } from "antd";
-import { UserOutlined, MailOutlined, PhoneOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
+import { UserOutlined, MailOutlined, PhoneOutlined, SafetyCertificateOutlined, KeyOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { AdminUserService } from "../../services/admin/adminUser.service";
 import { toast } from "react-toastify";
+import ChangePasswordModal from "../../components/common/ChangePasswordModal";
+import { Button } from "antd";
 
 const { Title, Text } = Typography;
 
@@ -11,6 +13,7 @@ export default function AdminProfile() {
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const fetchProfile = useCallback(async () => {
     if (!user) return;
@@ -58,7 +61,7 @@ export default function AdminProfile() {
               {displayData.fullName ? displayData.fullName.charAt(0).toUpperCase() : displayData.email?.charAt(0).toUpperCase()}
             </Avatar>
             
-            <div>
+            <div className="flex-1">
               <Title level={4} style={{ marginTop: 0, marginBottom: 4 }}>
                 {displayData.fullName || "Administrator"}
               </Title>
@@ -66,6 +69,15 @@ export default function AdminProfile() {
                 <SafetyCertificateOutlined className="text-emerald-500" />
                 ADMINISTRATOR
               </Text>
+            </div>
+            
+            <div className="mt-4 md:mt-0">
+              <Button 
+                icon={<KeyOutlined />} 
+                onClick={() => setIsPasswordModalOpen(true)}
+              >
+                Change Password
+              </Button>
             </div>
           </div>
 
@@ -95,6 +107,11 @@ export default function AdminProfile() {
           </Descriptions>
         </Card>
       </div>
+
+      <ChangePasswordModal 
+        open={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)} 
+      />
     </div>
   );
 }

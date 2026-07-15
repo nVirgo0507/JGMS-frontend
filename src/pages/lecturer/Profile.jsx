@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Card, Descriptions, Typography, Avatar, Divider, message } from "antd";
-import { UserOutlined, MailOutlined, PhoneOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
+import { UserOutlined, MailOutlined, PhoneOutlined, SafetyCertificateOutlined, KeyOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { LecturerService } from "../../services/lecturer.service";
+import ChangePasswordModal from "../../components/common/ChangePasswordModal";
+import { Button } from "antd";
 
 const { Title, Text } = Typography;
 
@@ -10,6 +12,7 @@ export default function LecturerProfile() {
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -67,7 +70,7 @@ export default function LecturerProfile() {
               {displayData.fullName ? displayData.fullName.charAt(0).toUpperCase() : displayData.email?.charAt(0).toUpperCase()}
             </Avatar>
             
-            <div>
+            <div className="flex-1">
               <Title level={4} style={{ marginTop: 0, marginBottom: 4 }}>
                 {displayData.fullName || "Lecturer"}
               </Title>
@@ -75,6 +78,15 @@ export default function LecturerProfile() {
                 <SafetyCertificateOutlined className="text-emerald-500" />
                 {displayData.role || "LECTURER"}
               </Text>
+            </div>
+            
+            <div className="mt-4 md:mt-0">
+              <Button 
+                icon={<KeyOutlined />} 
+                onClick={() => setIsPasswordModalOpen(true)}
+              >
+                Change Password
+              </Button>
             </div>
           </div>
 
@@ -102,6 +114,11 @@ export default function LecturerProfile() {
           </Descriptions>
         </Card>
       </div>
+
+      <ChangePasswordModal 
+        open={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)} 
+      />
     </div>
   );
 }

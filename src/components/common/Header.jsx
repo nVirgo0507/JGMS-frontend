@@ -2,10 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { ROUTER_URL } from "../../consts/router.const";
+import ChangePasswordModal from "./ChangePasswordModal";
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -109,6 +111,16 @@ const Header = () => {
                   >
                     Dashboard
                   </Link>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsDropdownOpen(false);
+                      setIsPasswordModalOpen(true);
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 transition"
+                  >
+                    Change Password
+                  </button>
                   <hr className="my-1 border-slate-200" />
                   <button
                     onClick={(e) => {
@@ -140,6 +152,11 @@ const Header = () => {
           )}
         </div>
       </div>
+      
+      <ChangePasswordModal 
+        open={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)} 
+      />
     </header>
   );
 };
